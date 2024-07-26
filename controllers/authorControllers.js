@@ -1,5 +1,5 @@
 // USER MODEL
-const { User } = require("../models");
+const { Author } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -14,19 +14,14 @@ const addNewAuthors = async (req, res) => {
     logger.info("authorControllers --> addNewAuthors --> reached");
     const { firstname, lastname, email } = req.body;
 
-    const responseData = await User.create({
+    const authUser = await Author.create({
       firstname,
       lastname,
       email,
     });
 
     logger.info("authorControllers --> addNewAuthors --> ended");
-    return successResponse(
-      res,
-      message.COMMON.ADDED_SUCCESS,
-      responseData,
-      201
-    );
+    return successResponse(res, message.COMMON.ADDED_SUCCESS, authUser, 201);
   } catch (error) {
     logger.error("authorControllers --> addNewAuthors --> error", error);
     return errorResponse(
@@ -42,13 +37,13 @@ const addNewAuthors = async (req, res) => {
 const getAllAuthorsList = async (req, res) => {
   try {
     logger.info("authorControllers --> getAllAuthorsList --> reached");
-    const responseData = await User.findAll();
+    const authUsers = await Author.findAll();
 
     logger.info("authorControllers --> getAllAuthorsList --> ended");
     return successResponse(
       res,
       message.COMMON.LIST_FETCH_SUCCESS,
-      responseData,
+      authUsers,
       200
     );
   } catch (error) {
@@ -67,15 +62,15 @@ const getAuthorsById = async (req, res) => {
   logger.info("authorControllers --> getAuthorsById --> reached");
   const { id } = req.params;
   try {
-    const user = await User.findByPk(id);
+    const authUser = await Author.findByPk(id);
 
-    if (!user) {
+    if (!authUser) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     logger.info("authorControllers --> getAuthorsById --> ended");
 
-    return successResponse(res, message.COMMON.FETCH_SUCCESS, user, 200);
+    return successResponse(res, message.COMMON.FETCH_SUCCESS, authUser, 200);
   } catch (error) {
     logger.error("authorControllers --> getAuthorsById --> error", error);
     return errorResponse(
@@ -93,25 +88,20 @@ const updateAuthors = async (req, res) => {
   const { id } = req.params;
   const { firstname, lastname, email } = req.body;
   try {
-    const responseData = await User.findByPk(id);
+    const authUser = await Author.findByPk(id);
 
-    if (!responseData) {
+    if (!authUser) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    responseData.firstname = firstname;
-    responseData.lastname = lastname;
-    responseData.email = email;
+    authUser.firstname = firstname;
+    authUser.lastname = lastname;
+    authUser.email = email;
 
-    await responseData.save();
+    await authUser.save();
 
     logger.info("authorControllers --> updateAuthors --> ended");
-    return successResponse(
-      res,
-      message.COMMON.UPDATE_SUCCESS,
-      responseData,
-      200
-    );
+    return successResponse(res, message.COMMON.UPDATE_SUCCESS, authUser, 200);
   } catch (error) {
     logger.error("authorControllers --> updateAuthors --> error", error);
     return errorResponse(
@@ -128,21 +118,16 @@ const deleteAuthors = async (req, res) => {
   logger.info("authorControllers --> deleteAuthors --> reached");
   const { id } = req.params;
   try {
-    const responseData = await User.findByPk(id);
+    const authUser = await Author.findByPk(id);
 
-    if (!responseData) {
+    if (!authUser) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    await responseData.destroy();
+    await authUser.destroy();
 
     logger.info("authorControllers --> deleteAuthors --> ended");
-    return successResponse(
-      res,
-      message.COMMON.DELETE_SUCCESS,
-      responseData,
-      200
-    );
+    return successResponse(res, message.COMMON.DELETE_SUCCESS, authUser, 200);
   } catch (error) {
     logger.error("authorControllers --> deleteAuthors --> error", error);
     return errorResponse(

@@ -9,22 +9,22 @@ const {
   deleteAuthors,
 } = require("../controllers/authorControllers");
 
-//  TO VALIDATE USER DATA TYPES WHILE CREATING NEW USER
+//  TO VALIDATE AUTH USER DATA TYPES WHILE CREATING NEW USER
 const {
-  validateNewUser,
-  validatePrevUser,
+  validateNewAuthor,
+  validatePrevAuthor,
 } = require("../middlewares/validations");
 
 const router = express.Router();
 
 // Private routes (require authentication)
-router.post("/add_books", validateNewUser, addNewAuthors);
+router.post("/add_authors", validateNewAuthor, addNewAuthors);
 
 router.get("/", getAllAuthorsList);
 
 router.get("/:id", getAuthorsById);
 
-router.put("/:id", validatePrevUser, updateAuthors);
+router.put("/:id", validatePrevAuthor, updateAuthors);
 
 router.delete("/:id", deleteAuthors);
 

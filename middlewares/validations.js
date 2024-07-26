@@ -1,5 +1,8 @@
 const { body, validationResult } = require("express-validator");
+
+// MODELS
 const { User } = require("../models");
+const { Author } = require("../models");
 
 // UTIL MODULES
 const message = require("../utils/commonMessages");
@@ -115,9 +118,61 @@ const validateBookField = [
   },
 ];
 
+const validateNewAuthor = [
+  body("firstname")
+    .isAlpha()
+    .withMessage("Firstname must contain only letters"),
+  body("lastname").isAlpha().withMessage("Lastname must contain only letters"),
+  body("email")
+    .isEmail()
+    .withMessage("Email is invalid")
+    .custom(async (email) => {
+      const existingAuthUser = await Author.findOne({ where: { email } });
+      if (existingAuthUser) {
+        throw new Error("Email already in use");
+      }
+    }),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return errorResponse(
+        res,
+        message.AUTH.INVALID_FORMAT,
+        errors.array(),
+        400
+      );
+    }
+    next();
+  },
+];
+
+const validatePrevAuthor = [
+  body("firstname")
+    .isAlpha()
+    .withMessage("Firstname must contain only letters"),
+  body("lastname").isAlpha().withMessage("Lastname must contain only letters"),
+  body("email").isEmail().withMessage("Invalid email format"),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return errorResponse(
+        res,
+        message.AUTH.INVALID_FORMAT,
+        errors.array(),
+        400
+      );
+    }
+    next();
+  },
+];
+
 module.exports = {
   validateAuth,
   validateNewUser,
   validatePrevUser,
   validateBookField,
+  validateNewAuthor,
+  validatePrevAuthor,
 };

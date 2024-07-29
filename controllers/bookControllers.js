@@ -38,11 +38,27 @@ const addNewBooks = async (req, res) => {
   }
 };
 
-// GET ALL LIST OF BOOKS
+// GET ALL LIST OF BOOKS WITH PAGINATION
 const getAllBooksList = async (req, res) => {
+  const { page = 1, pageSize = 5 } = req.query;
+
   try {
     logger.info("bookControllers --> getAllBooksList --> reached");
-    const responseData = await Book.findAll();
+
+    const offset = (page - 1) * pageSize;
+    const limit = parseInt(pageSize, 10);
+
+    const { count, rows } = await Book.findAndCountAll({
+      offset,
+      limit,
+    });
+
+    const responseData = {
+      books: rows,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
 
     logger.info("bookControllers --> getAllBooksList --> ended");
     return successResponse(

@@ -35,19 +35,35 @@ const addNewAuthors = async (req, res) => {
 
 // GET ALL LIST OF AUTHORS
 const getAllAuthorsList = async (req, res) => {
+  const { page = 1, pageSize = 5 } = req.query;
+
   try {
     logger.info("authorControllers --> getAllAuthorsList --> reached");
-    const authUsers = await Author.findAll();
+
+    const offset = (page - 1) * pageSize;
+    const limit = parseInt(pageSize, 10);
+
+    const { count, rows } = await Author.findAndCountAll({
+      offset,
+      limit,
+    });
+
+    const responseData = {
+      authors: rows,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
 
     logger.info("authorControllers --> getAllAuthorsList --> ended");
     return successResponse(
       res,
       message.COMMON.LIST_FETCH_SUCCESS,
-      authUsers,
+      responseData,
       200
     );
   } catch (error) {
-    logger.error("authorControllers --> getAllAuthorsList --> error", error);
+    logger.info("authorControllers --> getAllAuthorsList --> ended");
     return errorResponse(
       res,
       message.SERVER.INTERNAL_SERVER_ERROR,

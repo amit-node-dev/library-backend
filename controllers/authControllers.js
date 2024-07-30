@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const { User } = require("../models");
 
 // CORE-CONFIG MODULES
+const generateToken = require("../core-configurations/jwt-config/generateToken");
 const logger = require("../core-configurations/logger-config/logger");
 
 // UTILS MODULES
@@ -30,8 +31,11 @@ const loginUser = async (req, res) => {
       return errorResponse(res, message.AUTH.INVALID_PASSWORD, null, 401);
     }
 
+    // GENERATE TOKEN
+    const tokenData = generateToken(user.id);
+
     logger.info("authControllers --> loginUser --> ended");
-    return successResponse(res, message.AUTH.VERIFIED_USER, null, 200);
+    return successResponse(res, message.AUTH.VERIFIED_USER, tokenData, 200);
   } catch (error) {
     logger.error("authControllers --> loginUser --> error", error);
     return errorResponse(

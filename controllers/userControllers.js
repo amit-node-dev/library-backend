@@ -8,26 +8,22 @@ const logger = require("../core-configurations/logger-config/logger");
 const { successResponse, errorResponse } = require("../utils/handleResponse");
 const message = require("../utils/commonMessages");
 
-// CREATE / REGISTER NEW USER
+// CREATE / REGISTER USER
 const createUser = async (req, res) => {
   try {
     logger.info("userControllers --> createUser --> reached");
-    const { firstname, lastname, email, password } = req.body;
+    const { firstname, lastname, email, password, roleId } = req.body;
 
-    const responseData = await User.create({
+    const user = await User.create({
       firstname,
       lastname,
       email,
       password,
+      roleId,
     });
 
     logger.info("userControllers --> createUser --> ended");
-    return successResponse(
-      res,
-      message.COMMON.ADDED_SUCCESS,
-      responseData,
-      201
-    );
+    return successResponse(res, message.COMMON.ADDED_SUCCESS, user, 201);
   } catch (error) {
     logger.error("userControllers --> createUser --> error", error);
     return errorResponse(
@@ -43,15 +39,10 @@ const createUser = async (req, res) => {
 const getAllUserList = async (req, res) => {
   try {
     logger.info("userControllers --> getAllUserList --> reached");
-    const responseData = await User.findAll();
+    const users = await User.findAll();
 
     logger.info("userControllers --> getAllUserList --> ended");
-    return successResponse(
-      res,
-      message.COMMON.LIST_FETCH_SUCCESS,
-      responseData,
-      200
-    );
+    return successResponse(res, message.COMMON.LIST_FETCH_SUCCESS, users, 200);
   } catch (error) {
     logger.error("userControllers --> getAllUserList --> error", error);
     return errorResponse(
@@ -92,28 +83,24 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
   logger.info("userControllers --> updateUser --> reached");
   const { id } = req.params;
-  const { firstname, lastname, email, password } = req.body;
+  const { firstname, lastname, email, password, roleId } = req.body;
   try {
-    const responseData = await User.findByPk(id);
+    const user = await User.findByPk(id);
 
-    if (!responseData) {
+    if (!user) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    responseData.firstname = firstname;
-    responseData.lastname = lastname;
-    responseData.email = email;
-    responseData.password = password;
+    user.firstname = firstname;
+    user.lastname = lastname;
+    user.email = email;
+    user.password = password;
+    user.roleId = roleId;
 
-    await responseData.save();
+    await user.save();
 
     logger.info("userControllers --> updateUser --> ended");
-    return successResponse(
-      res,
-      message.COMMON.UPDATE_SUCCESS,
-      responseData,
-      200
-    );
+    return successResponse(res, message.COMMON.UPDATE_SUCCESS, user, 200);
   } catch (error) {
     logger.error("userControllers --> updateUser --> error", error);
     return errorResponse(
@@ -130,21 +117,16 @@ const deleteUser = async (req, res) => {
   logger.info("userControllers --> deleteUser --> reached");
   const { id } = req.params;
   try {
-    const responseData = await User.findByPk(id);
+    const user = await User.findByPk(id);
 
-    if (!responseData) {
+    if (!user) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    await responseData.destroy();
+    await user.destroy();
 
     logger.info("userControllers --> deleteUser --> ended");
-    return successResponse(
-      res,
-      message.COMMON.DELETE_SUCCESS,
-      responseData,
-      200
-    );
+    return successResponse(res, message.COMMON.DELETE_SUCCESS, user, 200);
   } catch (error) {
     logger.error("userControllers --> deleteUser --> error", error);
     return errorResponse(

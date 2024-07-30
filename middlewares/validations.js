@@ -85,6 +85,23 @@ const validatePrevUser = [
   },
 ];
 
+const validateRole = [
+  body("name").isAlpha().withMessage("Role name must contain only letters"),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return errorResponse(
+        res,
+        message.AUTH.INVALID_FORMAT,
+        errors.array(),
+        400
+      );
+    }
+    next();
+  },
+];
+
 const validateBookField = [
   body("bookname")
     .notEmpty()
@@ -172,6 +189,7 @@ module.exports = {
   validateAuth,
   validateNewUser,
   validatePrevUser,
+  validateRole,
   validateBookField,
   validateNewAuthor,
   validatePrevAuthor,

@@ -2,11 +2,11 @@ const express = require("express");
 
 // CONTROLLERS
 const {
-  getAllUserList,
   createUser,
-  deleteUser,
+  getAllUserList,
   getUserById,
   updateUser,
+  deleteUser,
 } = require("../controllers/userControllers");
 
 //  TO VALIDATE USER DATA TYPES WHILE CREATING NEW USER
@@ -14,18 +14,31 @@ const {
   validateNewUser,
   validatePrevUser,
 } = require("../middlewares/validations");
+const checkRole = require("../middlewares/checkRole");
 
 const router = express.Router();
 
-// Private routes (require authentication)
-router.post("/add_user", validateNewUser, createUser);
+router.post(
+  "/add_user",
+  checkRole(["super_admin", "admin"]),
+  validateNewUser,
+  createUser
+);
 
-router.get("/", getAllUserList);
+router.get(
+  "/",
+  checkRole(["super_admin", "admin", "super_agent", "agent"]),
+  getAllUserList
+);
 
-router.get("/:id", getUserById);
+router.get(
+  "/:id",
+  checkRole(["super_admin", "admin", "super_agent", "agent"]),
+  getUserById
+);
 
-router.put("/:id", validatePrevUser, updateUser);
+router.put("/:id", checkRole(["super_admin"]), validatePrevUser, updateUser);
 
-router.delete("/:id", deleteUser);
+router.delete("/:id", checkRole(["super_admin"]), deleteUser);
 
 module.exports = router;

@@ -2,7 +2,13 @@
 const { Model, DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   class User extends Model {
-    static associate(models) {}
+    static associate(models) {
+      // Associate User with Role
+      User.belongsTo(models.Role, {
+        foreignKey: "roleId",
+        as: "role",
+      });
+    }
   }
 
   User.init(
@@ -35,6 +41,15 @@ module.exports = (sequelize) => {
             msg: "Password must be at least 8 characters long",
           },
         },
+      },
+      roleId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Roles",
+          key: "id",
+        },
+        allowNull: false,
+        defaultValue: 3,
       },
     },
     {

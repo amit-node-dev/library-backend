@@ -14,18 +14,37 @@ const {
   validateNewAuthor,
   validatePrevAuthor,
 } = require("../middlewares/validations");
+const checkRole = require("../middlewares/checkRole");
 
 const router = express.Router();
 
 // Private routes (require authentication)
-router.post("/add_authors", validateNewAuthor, addNewAuthors);
+router.post(
+  "/add_authors",
+  checkRole(["super_admin", "admin"]),
+  validateNewAuthor,
+  addNewAuthors
+);
 
-router.get("/", getAllAuthorsList);
+router.get(
+  "/",
+  checkRole(["super_admin", "admin", "super_agent", "agent"]),
+  getAllAuthorsList
+);
 
-router.get("/:id", getAuthorsById);
+router.get(
+  "/:id",
+  checkRole(["super_admin", "admin", "super_agent", "agent"]),
+  getAuthorsById
+);
 
-router.put("/:id", validatePrevAuthor, updateAuthors);
+router.put(
+  "/:id",
+  checkRole(["super_admin"]),
+  validatePrevAuthor,
+  updateAuthors
+);
 
-router.delete("/:id", deleteAuthors);
+router.delete("/:id", checkRole(["super_admin"]), deleteAuthors);
 
 module.exports = router;

@@ -7,12 +7,16 @@ const cors = require("cors");
 const logger = require("./core-configurations/logger-config/logger");
 const sequelize = require("./core-configurations/sequelize-config/sequelize");
 
+// MIDDLEWARES MODULES
+const { verifyToken } = require("./middlewares/verifyToken");
+
 // DB MODELS MODULES
 const db = require("./models");
 
 // ROUTES
-const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const roleRoutes = require("./routes/roleRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const authorRoutes = require("./routes/authorRoutes");
 
@@ -38,9 +42,13 @@ app.get("/", (req, res) => {
 app.use(`${process.env.BASE_URL}/auth`, authRoutes);
 
 // ---------------- PRIVATE ROUTES -----------------------
+app.use(verifyToken);
 
 // USER ROUTES
 app.use(`${process.env.BASE_URL}/users`, userRoutes);
+
+// ROLE ROUTES
+app.use(`${process.env.BASE_URL}/roles`, roleRoutes);
 
 // BOOKS ROUTES
 app.use(`${process.env.BASE_URL}/books`, bookRoutes);

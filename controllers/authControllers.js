@@ -8,6 +8,9 @@ const { User } = require("../models");
 const generateToken = require("../core-configurations/jwt-config/generateToken");
 const logger = require("../core-configurations/logger-config/logger");
 
+// MIDDLEWARE
+const { addToBlacklist } = require("../middlewares/blackListToken");
+
 // UTILS MODULES
 const { successResponse, errorResponse } = require("../utils/handleResponse");
 const message = require("../utils/commonMessages");
@@ -47,4 +50,30 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { loginUser };
+const logoutUser = (req, res) => {
+  try {
+    logger.info("authControllers --> logoutUser --> reached");
+
+    const token =
+      req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+    if (!token) {
+      return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, null, 401);
+    }
+
+    addToBlacklist(token);
+
+    logger.info("authControllers --> logoutUser --> ended");
+    return successResponse(res, message.AUTH.LOGOUT, null, 200);
+  } catch (error) {
+    logger.error("authControllers --> logoutUser --> error", error);
+    return errorResponse(
+      res,
+      message.SERVER.INTERNAL_SERVER_ERROR,
+      error.message,
+      500
+    );
+  }
+};
+
+module.exports = { loginUser, logoutUser };

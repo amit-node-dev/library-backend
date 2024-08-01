@@ -19,7 +19,7 @@ const checkRole = require("../middlewares/checkRole");
 const router = express.Router();
 
 router.post(
-  "/add_user",
+  "/add_users",
   checkRole(["super_admin", "admin"]),
   validateNewUser,
   createUser

@@ -9,7 +9,7 @@ const {
   deleteAuthors,
 } = require("../controllers/authorControllers");
 
-//  TO VALIDATE AUTH USER DATA TYPES WHILE CREATING NEW USER
+//  TO VALIDATE AUTH AUTHORS DATA
 const {
   validateNewAuthor,
   validatePrevAuthor,

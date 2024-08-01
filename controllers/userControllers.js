@@ -1,5 +1,5 @@
 // USER MODEL
-const { User } = require("../models");
+const { User, sequelize } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -37,12 +37,39 @@ const createUser = async (req, res) => {
 
 // GET ALL LIST OF USERS
 const getAllUserList = async (req, res) => {
+  const { page = 1, pageSize = 5 } = req.query;
+
   try {
     logger.info("userControllers --> getAllUserList --> reached");
-    const users = await User.findAll();
+    const offset = (page - 1) * pageSize;
+    const limit = parseInt(pageSize, 10);
+
+    const { count, rows } = await User.findAndCountAll({
+      offset,
+      limit,
+      include: [
+        {
+          model: sequelize.models.Role,
+          as: "role",
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    const responseData = {
+      users: rows,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
 
     logger.info("userControllers --> getAllUserList --> ended");
-    return successResponse(res, message.COMMON.LIST_FETCH_SUCCESS, users, 200);
+    return successResponse(
+      res,
+      message.COMMON.LIST_FETCH_SUCCESS,
+      responseData,
+      200
+    );
   } catch (error) {
     logger.error("userControllers --> getAllUserList --> error", error);
     return errorResponse(

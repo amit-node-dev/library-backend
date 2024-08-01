@@ -15,8 +15,7 @@ const db = {
   Sequelize,
 };
 
-if (User.associate) {
-  User.associate(db);
-}
+User.associate({ Role });
+Role.associate({ User });
 
 module.exports = db;

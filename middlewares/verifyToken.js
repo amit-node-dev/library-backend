@@ -28,7 +28,6 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (error) {
     logger.error("Error in verify token ::: ", error);
-    Bugsnag.notify(error);
     return errorResponse(res, message.AUTH.INVALID_TOKEN, error, 400);
   }
 };

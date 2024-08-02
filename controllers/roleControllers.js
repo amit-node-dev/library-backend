@@ -14,10 +14,10 @@ const addRole = async (req, res) => {
     logger.info("roleControllers --> addRole --> reached");
     const { name } = req.body;
 
-    const responseData = await Role.create({ name });
+    const role = await Role.create({ name });
 
     logger.info("roleControllers --> addRole --> ended");
-    return successResponse(res, message.ROLE.CREATE_SUCCESS, responseData, 201);
+    return successResponse(res, message.COMMON.ADDED_SUCCESS, role, 201);
   } catch (error) {
     logger.error("roleControllers --> addRole --> error", error);
     return errorResponse(
@@ -31,15 +31,31 @@ const addRole = async (req, res) => {
 
 // GET ALL LIST OF ROLES
 const getAllRolesList = async (req, res) => {
+  const { page = 1, pageSize = 5 } = req.query;
+
   try {
     logger.info("roleControllers --> getAllRolesList --> reached");
-    const responseData = await Role.findAll();
+
+    const offset = (page - 1) * pageSize;
+    const limit = parseInt(pageSize, 10);
+
+    const { count, rows } = await Role.findAndCountAll({
+      offset,
+      limit,
+    });
+
+    const rolesData = {
+      roles: rows,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
 
     logger.info("roleControllers --> getAllRolesList --> ended");
     return successResponse(
       res,
-      message.ROLE.LIST_FETCH_SUCCESS,
-      responseData,
+      message.COMMON.LIST_FETCH_SUCCESS,
+      rolesData,
       200
     );
   } catch (error) {
@@ -58,14 +74,14 @@ const getRoleById = async (req, res) => {
   logger.info("roleControllers --> getRoleId --> reached");
   const { id } = req.params;
   try {
-    const responseData = await Role.findByPk(id);
+    const role = await Role.findByPk(id);
 
-    if (!responseData) {
-      return errorResponse(res, message.ROLE.ROLE_NOT_FOUND, null, 404);
+    if (!role) {
+      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     logger.info("roleControllers --> getRoleId --> ended");
-    return successResponse(res, message.ROLE.FETCH_SUCCESS, responseData, 200);
+    return successResponse(res, message.COMMON.FETCH_SUCCESS, role, 200);
   } catch (error) {
     logger.error("roleControllers --> getRoleId --> error", error);
     return errorResponse(
@@ -83,18 +99,18 @@ const updateRole = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   try {
-    const responseData = await Role.findByPk(id);
+    const role = await Role.findByPk(id);
 
-    if (!responseData) {
-      return errorResponse(res, message.ROLE.ROLE_NOT_FOUND, null, 404);
+    if (!role) {
+      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    responseData.name = name;
+    role.name = name;
 
-    await responseData.save();
+    await role.save();
 
     logger.info("roleControllers --> updateRole --> ended");
-    return successResponse(res, message.ROLE.UPDATE_SUCCESS, responseData, 200);
+    return successResponse(res, message.COMMON.UPDATE_SUCCESS, role, 200);
   } catch (error) {
     logger.error("roleControllers --> updateRole --> error", error);
     return errorResponse(
@@ -110,21 +126,16 @@ const deleteRole = async (req, res) => {
   logger.info("roleControllers --> deleteRole --> reached");
   const { id } = req.params;
   try {
-    const responseRoleData = await Role.findByPk(id);
+    const role = await Role.findByPk(id);
 
-    if (!responseRoleData) {
-      return errorResponse(res, message.ROLE.ROLE_NOT_FOUND, null, 404);
+    if (!role) {
+      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    await responseRoleData.destroy();
+    await role.destroy();
 
     logger.info("roleControllers --> deleteRole --> ended");
-    return successResponse(
-      res,
-      message.ROLE.DELETE_SUCCESS,
-      responseRoleData,
-      200
-    );
+    return successResponse(res, message.COMMON.DELETE_SUCCESS, role, 200);
   } catch (error) {
     logger.error("roleControllers --> deleteRole --> error", error);
     return errorResponse(

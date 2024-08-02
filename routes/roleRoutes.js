@@ -8,8 +8,8 @@ const { validateRole } = require("../middlewares/validations");
 
 // CONTROLLERS
 const {
-  getAllRolesList,
   addRole,
+  getAllRolesList,
   getRoleById,
   updateRole,
   deleteRole,

@@ -18,4 +18,7 @@ const db = {
 User.associate({ Role });
 Role.associate({ User });
 
+Book.associate({ Author });
+Author.associate({ Book });
+
 module.exports = db;

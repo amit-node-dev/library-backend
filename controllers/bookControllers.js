@@ -1,5 +1,5 @@
 // BOOK MODEL
-const { Book } = require("../models");
+const { Book, sequelize } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -51,6 +51,13 @@ const getAllBooksList = async (req, res) => {
     const { count, rows } = await Book.findAndCountAll({
       offset,
       limit,
+      include: [
+        {
+          model: sequelize.models.Author,
+          as: "author",
+          attributes: ["firstname", "lastname"],
+        },
+      ],
     });
 
     const responseData = {

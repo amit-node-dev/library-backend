@@ -86,7 +86,7 @@ const validatePrevUser = [
 ];
 
 const validateRole = [
-  body("name").isAlpha().withMessage("Role name must contain only letters"),
+  body("name").notEmpty().withMessage("Role name is required"),
 
   (req, res, next) => {
     const errors = validationResult(req);

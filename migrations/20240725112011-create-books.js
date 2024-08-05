@@ -12,7 +12,7 @@ module.exports = {
       bookname: {
         type: Sequelize.STRING(100),
       },
-      description: {
+      title: {
         type: Sequelize.TEXT,
       },
       authorId: {
@@ -22,6 +22,20 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
+      },
+      categoryId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Categorys",
+          key: "id",
+        },
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.TEXT,
+      },
+      conclusion: {
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

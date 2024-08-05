@@ -11,15 +11,31 @@ module.exports = {
       },
       firstname: {
         type: Sequelize.STRING(25),
+        allowNull: false,
       },
       lastname: {
         type: Sequelize.STRING(25),
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING(30),
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      age: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       password: {
         type: Sequelize.TEXT,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          len: [8, 100],
+        },
       },
       roleId: {
         type: Sequelize.INTEGER,
@@ -28,6 +44,19 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
+        defaultValue: 3,
+      },
+      country: {
+        type: Sequelize.STRING(25),
+        allowNull: true,
+      },
+      state: {
+        type: Sequelize.STRING(25),
+        allowNull: true,
+      },
+      city: {
+        type: Sequelize.STRING(25),
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

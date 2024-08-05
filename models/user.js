@@ -28,6 +28,10 @@ module.exports = (sequelize) => {
           isEmail: true,
         },
       },
+      age: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -49,6 +53,18 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
         defaultValue: 3,
+      },
+      country: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      state: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      city: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
     },
     {

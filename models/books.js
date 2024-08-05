@@ -7,6 +7,10 @@ module.exports = (sequelize) => {
         foreignKey: "authorId",
         as: "author",
       });
+      Book.belongsTo(models.Category, {
+        foreignKey: "categoryId",
+        as: "category",
+      });
     }
   }
   Book.init(
@@ -15,7 +19,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
+      title: {
         type: DataTypes.TEXT,
         allowNull: false,
       },
@@ -25,6 +29,22 @@ module.exports = (sequelize) => {
           model: "Authors",
           key: "id",
         },
+        allowNull: false,
+      },
+      categoryId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Categorys",
+          key: "id",
+        },
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      conclusion: {
+        type: DataTypes.TEXT,
         allowNull: false,
       },
     },

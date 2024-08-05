@@ -12,12 +12,16 @@ const message = require("../utils/commonMessages");
 const addNewBooks = async (req, res) => {
   try {
     logger.info("bookControllers --> addNewBooks --> reached");
-    const { bookname, description, authorId } = req.body;
+    const { bookname, title, authorId, categoryId, description, conclusion } =
+      req.body;
 
     const responseData = await Book.create({
       bookname,
-      description,
+      title,
       authorId,
+      categoryId,
+      description,
+      conclusion,
     });
 
     logger.info("bookControllers --> addNewBooks --> ended");
@@ -56,6 +60,11 @@ const getAllBooksList = async (req, res) => {
           model: sequelize.models.Author,
           as: "author",
           attributes: ["firstname", "lastname"],
+        },
+        {
+          model: sequelize.models.Category,
+          as: "category",
+          attributes: ["name"],
         },
       ],
     });
@@ -114,7 +123,8 @@ const getBooksById = async (req, res) => {
 const updateBooks = async (req, res) => {
   logger.info("bookControllers --> updateBooks --> reached");
   const { id } = req.params;
-  const { bookname, description, authorId } = req.body;
+  const { bookname, title, authorId, categoryId, description, conclusion } =
+    req.body;
   try {
     const book = await Book.findByPk(id);
 
@@ -123,8 +133,11 @@ const updateBooks = async (req, res) => {
     }
 
     book.bookname = bookname;
-    book.description = description;
+    book.title = title;
     book.authorId = authorId;
+    book.categoryId = categoryId;
+    book.description = description;
+    book.conclusion = conclusion;
 
     await book.save();
 

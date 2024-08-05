@@ -14,11 +14,11 @@ module.exports = {
 
     // Fetch the first category from the Categorys table
     const categories = await queryInterface.sequelize.query(
-      `SELECT id FROM Categorys LIMIT 1;`
+      `SELECT id FROM Categories LIMIT 1;`
     );
 
     if (categories[0].length === 0) {
-      throw new Error("No categories found in the Categorys table.");
+      throw new Error("No categories found in the Categories table.");
     }
 
     // Get the first author's id

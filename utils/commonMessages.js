@@ -11,6 +11,7 @@ module.exports = {
   AUTH: {
     INVALID_USER: "Invalid Email or User does not exist",
     INVALID_PASSWORD: "Invalid Password",
+    INVALID_OLD_PASSWORD: "Invalid Old Password",
     VERIFIED_USER: "Verified Successfully",
     INVALID_TOKEN: "Invalid Token",
     INVALID_FORMAT: "Invalid Format",

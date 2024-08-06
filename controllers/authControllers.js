@@ -37,8 +37,15 @@ const loginUser = async (req, res) => {
     // GENERATE TOKEN
     const tokenData = generateToken(user.id);
 
+    const userData = {
+      token: tokenData,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+    };
+
     logger.info("authControllers --> loginUser --> ended");
-    return successResponse(res, message.AUTH.VERIFIED_USER, tokenData, 200);
+    return successResponse(res, message.AUTH.VERIFIED_USER, userData, 200);
   } catch (error) {
     logger.error("authControllers --> loginUser --> error", error);
     return errorResponse(

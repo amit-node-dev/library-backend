@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+
 // USER MODEL
 const { User, sequelize } = require("../models");
 
@@ -12,14 +14,30 @@ const message = require("../utils/commonMessages");
 const createUser = async (req, res) => {
   try {
     logger.info("userControllers --> createUser --> reached");
-    const { firstname, lastname, email, password, roleId } = req.body;
+    const {
+      firstname,
+      lastname,
+      email,
+      age,
+      password,
+      country,
+      state,
+      city,
+      role,
+    } = req.body;
+
+    const ageInt = parseInt(age);
 
     const user = await User.create({
       firstname,
       lastname,
       email,
+      age: ageInt,
       password,
-      roleId,
+      country,
+      state,
+      city,
+      roleId: role,
     });
 
     logger.info("userControllers --> createUser --> ended");
@@ -110,7 +128,18 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
   logger.info("userControllers --> updateUser --> reached");
   const { id } = req.params;
-  const { firstname, lastname, email, password, roleId } = req.body;
+  const {
+    firstname,
+    lastname,
+    email,
+    age,
+    oldpassword,
+    password,
+    country,
+    state,
+    city,
+    role,
+  } = req.body;
   try {
     const user = await User.findByPk(id);
 
@@ -118,11 +147,24 @@ const updateUser = async (req, res) => {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
+    if (oldpassword && password) {
+      const isMatch = await bcrypt.compare(oldpassword, user.password);
+      if (!isMatch) {
+        return errorResponse(res, message.AUTH.INVALID_OLD_PASSWORD, null, 400);
+      }
+
+      user.password = await bcrypt.hash(password, 10);
+    }
+
     user.firstname = firstname;
     user.lastname = lastname;
     user.email = email;
+    user.age = age;
     user.password = password;
-    user.roleId = roleId;
+    user.country = country;
+    user.state = state;
+    user.city = city;
+    user.roleId = role;
 
     await user.save();
 

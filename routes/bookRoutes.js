@@ -13,27 +13,21 @@ const {
 const { validateBookField } = require("../middlewares/validations");
 const checkRole = require("../middlewares/checkRole");
 
+const permission = ["super_admin", "admin", "super_agent", "agent"];
+
 const router = express.Router();
 
 // Private routes (require authentication)
 router.post(
   "/add_books",
-  checkRole(["super_admin", "admin"]),
+  checkRole(["super_admin"]),
   validateBookField,
   addNewBooks
 );
 
-router.get(
-  "/",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getAllBooksList
-);
+router.get("/", checkRole(permission), getAllBooksList);
 
-router.get(
-  "/:id",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getBooksById
-);
+router.get("/:id", checkRole(permission), getBooksById);
 
 router.put("/:id", checkRole(["super_admin"]), validateBookField, updateBooks);
 

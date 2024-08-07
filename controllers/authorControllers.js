@@ -35,7 +35,7 @@ const addNewAuthors = async (req, res) => {
 
 // GET ALL LIST OF AUTHORS
 const getAllAuthorsList = async (req, res) => {
-  const { page = 1, pageSize = 5 } = req.query;
+  const { page, pageSize } = req.query;
 
   try {
     logger.info("authorControllers --> getAllAuthorsList --> reached");

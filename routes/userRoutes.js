@@ -18,24 +18,18 @@ const checkRole = require("../middlewares/checkRole");
 
 const router = express.Router();
 
+const permission = ["super_admin", "admin", "super_agent", "agent"];
+
 router.post(
   "/add_users",
-  checkRole(["super_admin", "admin"]),
+  checkRole(["super_admin"]),
   validateNewUser,
   createUser
 );
 
-router.get(
-  "/",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getAllUserList
-);
+router.get("/", checkRole(permission), getAllUserList);
 
-router.get(
-  "/:id",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getUserById
-);
+router.get("/:id", checkRole(permission), getUserById);
 
 router.put("/:id", checkRole(["super_admin"]), validatePrevUser, updateUser);
 

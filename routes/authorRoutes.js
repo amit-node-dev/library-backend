@@ -18,25 +18,19 @@ const checkRole = require("../middlewares/checkRole");
 
 const router = express.Router();
 
+const permission = ["super_admin", "admin", "super_agent", "agent"];
+
 // Private routes (require authentication)
 router.post(
   "/add_authors",
-  checkRole(["super_admin", "admin"]),
+  checkRole(["super_admin"]),
   validateNewAuthor,
   addNewAuthors
 );
 
-router.get(
-  "/",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getAllAuthorsList
-);
+router.get("/", checkRole(permission), getAllAuthorsList);
 
-router.get(
-  "/:id",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getAuthorsById
-);
+router.get("/:id", checkRole(permission), getAuthorsById);
 
 router.put(
   "/:id",

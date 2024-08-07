@@ -17,20 +17,14 @@ const {
 
 const router = express.Router();
 
+const permission = ["super_admin", "admin", "super_agent", "agent"];
+
 // Private routes (require authentication)
 router.post("/add_roles", validateRole, checkRole(["super_admin"]), addRole);
 
-router.get(
-  "/",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getAllRolesList
-);
+router.get("/", checkRole(permission), getAllRolesList);
 
-router.get(
-  "/:id",
-  checkRole(["super_admin", "admin", "super_agent", "agent"]),
-  getRoleById
-);
+router.get("/:id", checkRole(permission), getRoleById);
 
 router.put("/:id", validateRole, checkRole(["super_admin"]), updateRole);
 

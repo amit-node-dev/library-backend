@@ -42,6 +42,7 @@ const loginUser = async (req, res) => {
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
+      roleId: user.roleId,
     };
 
     logger.info("authControllers --> loginUser --> ended");

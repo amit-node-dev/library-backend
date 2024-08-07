@@ -31,7 +31,7 @@ const addRole = async (req, res) => {
 
 // GET ALL LIST OF ROLES
 const getAllRolesList = async (req, res) => {
-  const { page = 1, pageSize = 5 } = req.query;
+  const { page, pageSize } = req.query;
 
   try {
     logger.info("roleControllers --> getAllRolesList --> reached");

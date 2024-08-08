@@ -18,6 +18,11 @@ module.exports = {
     UNAUTHORIZED_TOKEN: "Unauthorized Token",
     ACCESS_DENIED: "Access denied",
     LOGOUT: "Logout Successfully",
+    OTP_SENT: "OTP Sent Successfully",
+    OTP_VERIFIED: "OTP Verified Successfully",
+    MISSING_PHONE_NUMBER: "Missing Phone Number",
+    MISSING_OTP: "Missing OTP",
+    INVALID_OTP: "Invalid OTP",
   },
   SERVER: {
     INTERNAL_SERVER_ERROR: "Internal Server Error",

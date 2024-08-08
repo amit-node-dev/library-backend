@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
+const twilio = require("twilio");
 
 // USER MODEL
 const { User } = require("../models");
@@ -16,6 +17,11 @@ const { successResponse, errorResponse } = require("../utils/handleResponse");
 const message = require("../utils/commonMessages");
 
 dotenv.config();
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
+const OTP_EXPIRATION_TIME = 1 * 60 * 1000;
 
 const loginUser = async (req, res) => {
   try {
@@ -84,4 +90,79 @@ const logoutUser = (req, res) => {
   }
 };
 
-module.exports = { loginUser, logoutUser };
+const sentOTP = async (req, res) => {
+  try {
+    logger.info("authControllers --> sentOTP --> reached");
+
+    let { mobileNumber } = req.body;
+
+    if (!mobileNumber) {
+      return errorResponse(res, message.AUTH.MISSING_PHONE_NUMBER, null, 400);
+    }
+
+    // Ensure the mobile number includes the country code
+    if (!mobileNumber.startsWith("+91")) {
+      mobileNumber = `+91${mobileNumber}`;
+    }
+
+    await client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verifications.create({ to: mobileNumber, channel: "sms" });
+
+    logger.info("authControllers --> sentOTP --> OTP sent successfully");
+    return successResponse(res, message.AUTH.OTP_SENT, null, 200);
+  } catch (error) {
+    logger.error("authControllers --> sentOTP --> error", error);
+    return errorResponse(
+      res,
+      message.SERVER.INTERNAL_SERVER_ERROR,
+      error.message,
+      500
+    );
+  }
+};
+
+const verifyOTP = async (req, res) => {
+  try {
+    logger.info("authControllers --> verifyOTP --> reached");
+
+    let { mobileNumber, otp } = req.body;
+
+    if (!mobileNumber) {
+      return errorResponse(res, message.AUTH.MISSING_PHONE_NUMBER, null, 400);
+    }
+
+    if (!otp) {
+      return errorResponse(res, message.AUTH.MISSING_OTP, null, 400);
+    }
+
+    // Ensure the mobile number includes the country code
+    if (!mobileNumber.startsWith("+91")) {
+      mobileNumber = `+91${mobileNumber}`;
+    }
+
+    const verificationCheck = await client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verificationChecks.create({ to: mobileNumber, code: otp });
+
+    if (verificationCheck.status === "approved") {
+      logger.info(
+        "authControllers --> verifyOTP --> OTP verified successfully"
+      );
+      return successResponse(res, message.AUTH.OTP_VERIFIED, null, 200);
+    } else {
+      logger.warn("authControllers --> verifyOTP --> Invalid OTP");
+      return errorResponse(res, message.AUTH.INVALID_OTP, null, 400);
+    }
+  } catch (error) {
+    logger.error("authControllers --> verifyOTP --> error", error);
+    return errorResponse(
+      res,
+      message.SERVER.INTERNAL_SERVER_ERROR,
+      error.message,
+      500
+    );
+  }
+};
+
+module.exports = { loginUser, logoutUser, sentOTP, verifyOTP };

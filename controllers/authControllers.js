@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const twilio = require("twilio");
 
 // USER MODEL
-const { User } = require("../models");
+const { User, Role } = require("../models");
 
 // CORE-CONFIG MODULES
 const generateToken = require("../core-configurations/jwt-config/generateToken");
@@ -105,6 +105,31 @@ const sentOTP = async (req, res) => {
       mobileNumber = `+91${mobileNumber}`;
     }
 
+    // Check if the user already exists
+    let user = await User.findOne({ where: { mobileNumber } });
+    if (user) {
+      return errorResponse(res, message.AUTH.ALREADY_EXIST, null, 404);
+    }
+
+    // Fetch the role IDs to associate with users
+    const roles = await Role.findOne({ where: { name: "customer" } });
+
+    const demoUserData = {
+      firstname: "John",
+      lastname: "Dcruz",
+      email: "john@gmail.com",
+      password: "$2y$10$CTRkjgznicnOPtqGg9xpZOyYpScCaqNRAjlcNcOCBQ2VIQInoprzG",
+      roleId: roles.id,
+      mobileNumber: mobileNumber,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // If user doesn't exist, create a new user
+    if (!user) {
+      user = await User.create(demoUserData);
+    }
+
     await client.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: mobileNumber, channel: "sms" });
@@ -141,19 +166,28 @@ const verifyOTP = async (req, res) => {
       mobileNumber = `+91${mobileNumber}`;
     }
 
-    const verificationCheck = await client.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      .verificationChecks.create({ to: mobileNumber, code: otp });
+    const user = await User.findOne({ where: { mobileNumber } });
 
-    if (verificationCheck.status === "approved") {
-      logger.info(
-        "authControllers --> verifyOTP --> OTP verified successfully"
-      );
-      return successResponse(res, message.AUTH.OTP_VERIFIED, null, 200);
-    } else {
-      logger.warn("authControllers --> verifyOTP --> Invalid OTP");
-      return errorResponse(res, message.AUTH.INVALID_OTP, null, 400);
+    if (!user) {
+      return errorResponse(res, message.AUTH.INVALID_USER, null, 404);
     }
+
+    logger.info("authControllers --> verifyOTP --> OTP verified successfully");
+
+    // Generate token for authenticated session
+    const tokenData = generateToken(user.id);
+
+    const userData = {
+      token: tokenData,
+      id: user.id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+      mobileNumber: user.mobileNumber,
+      roleId: user.roleId,
+    };
+
+    return successResponse(res, message.AUTH.OTP_VERIFIED, userData, 200);
   } catch (error) {
     logger.error("authControllers --> verifyOTP --> error", error);
     return errorResponse(

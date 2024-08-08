@@ -13,7 +13,7 @@ const {
 const { validateBookField } = require("../middlewares/validations");
 const checkRole = require("../middlewares/checkRole");
 
-const permission = ["super_admin", "admin", "super_agent", "agent"];
+const permission = ["super_admin", "admin", "customer"];
 
 const router = express.Router();
 

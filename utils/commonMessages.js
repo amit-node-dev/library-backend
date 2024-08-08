@@ -23,6 +23,7 @@ module.exports = {
     MISSING_PHONE_NUMBER: "Missing Phone Number",
     MISSING_OTP: "Missing OTP",
     INVALID_OTP: "Invalid OTP",
+    ALREADY_EXIST: "Already Exists",
   },
   SERVER: {
     INTERNAL_SERVER_ERROR: "Internal Server Error",

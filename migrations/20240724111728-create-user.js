@@ -58,6 +58,10 @@ module.exports = {
         type: Sequelize.STRING(25),
         allowNull: true,
       },
+      mobileNumber: {
+        type: Sequelize.STRING(15),
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

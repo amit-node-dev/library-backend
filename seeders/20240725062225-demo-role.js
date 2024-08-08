@@ -17,12 +17,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          name: "super_agent",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          name: "agent",
+          name: "customer",
           createdAt: new Date(),
           updatedAt: new Date(),
         },

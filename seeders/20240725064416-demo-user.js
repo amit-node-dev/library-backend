@@ -19,7 +19,8 @@ module.exports = {
           email: "amit.vishwakarma@gmail.com",
           password:
             "$2y$10$CTRkjgznicnOPtqGg9xpZOyYpScCaqNRAjlcNcOCBQ2VIQInoprzG",
-          roleId: rolesRows.find((role) => role.name === "super_admin").id,
+          roleId: rolesRows.find((role) => role.name === "customer").id,
+          mobileNumber: "+917001081661",
           createdAt: new Date(),
           updatedAt: new Date(),
         },

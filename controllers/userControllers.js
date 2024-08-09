@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
   try {
     logger.info("userControllers --> createUser --> reached");
 
-    const {
+    let {
       firstname,
       lastname,
       email,
@@ -28,7 +28,12 @@ const createUser = async (req, res) => {
       mobileNumber,
     } = req.body;
 
-    const ageInt = parseInt(age);
+    let ageInt = parseInt(age);
+
+    // Ensure the mobile number includes the country code
+    if (!mobileNumber.startsWith("+91")) {
+      mobileNumber = `+91${mobileNumber}`;
+    }
 
     let findUserByMobileNumber = await User.findOne({
       where: { mobileNumber },
@@ -175,7 +180,6 @@ const updateUser = async (req, res) => {
       if (!isMatch) {
         return errorResponse(res, message.AUTH.INVALID_OLD_PASSWORD, null, 400);
       }
-
       user.password = await bcrypt.hash(password, 10);
     }
 

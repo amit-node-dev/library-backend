@@ -21,7 +21,6 @@ dotenv.config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
-const OTP_EXPIRATION_TIME = 1 * 60 * 1000;
 
 const loginUser = async (req, res) => {
   try {

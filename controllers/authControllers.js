@@ -49,6 +49,8 @@ const loginUser = async (req, res) => {
       lastname: user.lastname,
       email: user.email,
       roleId: user.roleId,
+      userId: user.id,
+      user,
     };
 
     logger.info("authControllers --> loginUser --> ended");
@@ -179,7 +181,7 @@ const verifyOTP = async (req, res) => {
 
     const userData = {
       token: tokenData,
-      id: user.id,
+      userId: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,

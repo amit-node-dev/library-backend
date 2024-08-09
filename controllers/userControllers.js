@@ -14,6 +14,7 @@ const message = require("../utils/commonMessages");
 const createUser = async (req, res) => {
   try {
     logger.info("userControllers --> createUser --> reached");
+
     const {
       firstname,
       lastname,
@@ -24,24 +25,46 @@ const createUser = async (req, res) => {
       state,
       city,
       role,
+      mobileNumber,
     } = req.body;
 
     const ageInt = parseInt(age);
 
-    const user = await User.create({
-      firstname,
-      lastname,
-      email,
-      age: ageInt,
-      password,
-      country,
-      state,
-      city,
-      roleId: role,
+    let findUserByMobileNumber = await User.findOne({
+      where: { mobileNumber },
     });
 
+    let responseData;
+
+    if (findUserByMobileNumber) {
+      findUserByMobileNumber.firstname = firstname;
+      findUserByMobileNumber.lastname = lastname;
+      findUserByMobileNumber.email = email;
+      findUserByMobileNumber.password = password;
+
+      responseData = await findUserByMobileNumber.save();
+    } else {
+      responseData = await User.create({
+        firstname,
+        lastname,
+        email,
+        age: ageInt,
+        password,
+        country,
+        state,
+        city,
+        roleId: role,
+        mobileNumber,
+      });
+    }
+
     logger.info("userControllers --> createUser --> ended");
-    return successResponse(res, message.COMMON.ADDED_SUCCESS, user, 201);
+    return successResponse(
+      res,
+      message.COMMON.ADDED_SUCCESS,
+      responseData,
+      201
+    );
   } catch (error) {
     logger.error("userControllers --> createUser --> error", error);
     return errorResponse(

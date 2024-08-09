@@ -36,20 +36,28 @@ const getAllRolesList = async (req, res) => {
   try {
     logger.info("roleControllers --> getAllRolesList --> reached");
 
-    const offset = (page - 1) * pageSize;
-    const limit = parseInt(pageSize, 10);
+    let rolesData;
+    if (page && pageSize) {
+      let offset = (page - 1) * pageSize;
+      let limit = parseInt(pageSize, 10);
 
-    const { count, rows } = await Role.findAndCountAll({
-      offset,
-      limit,
-    });
+      let result = await Role.findAndCountAll({
+        offset,
+        limit,
+      });
 
-    const rolesData = {
-      roles: rows,
-      total: count,
-      page: parseInt(page, 10),
-      pageSize: limit,
-    };
+      rolesData = {
+        roles: result.rows,
+        total: result.count,
+        page: parseInt(page, 10),
+        pageSize: limit,
+      };
+    } else {
+      let result = await Role.findAll({});
+      rolesData = {
+        roles: result,
+      };
+    }
 
     logger.info("roleControllers --> getAllRolesList --> ended");
     return successResponse(

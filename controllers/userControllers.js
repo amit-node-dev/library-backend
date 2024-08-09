@@ -31,8 +31,10 @@ const createUser = async (req, res) => {
     let ageInt = parseInt(age);
 
     // Ensure the mobile number includes the country code
-    if (!mobileNumber.startsWith("+91")) {
-      mobileNumber = `+91${mobileNumber}`;
+    if (mobileNumber) {
+      if (!mobileNumber.startsWith("+91")) {
+        mobileNumber = `+91${mobileNumber}`;
+      }
     }
 
     let findUserByMobileNumber = await User.findOne({
@@ -155,12 +157,13 @@ const getUserById = async (req, res) => {
 // UPDATE USER BY ID
 const updateUser = async (req, res) => {
   logger.info("userControllers --> updateUser --> reached");
-  const { id } = req.params;
-  const {
+  let { id } = req.params;
+  let {
     firstname,
     lastname,
     email,
     age,
+    mobileNumber,
     oldpassword,
     password,
     country,
@@ -169,14 +172,21 @@ const updateUser = async (req, res) => {
     role,
   } = req.body;
   try {
-    const user = await User.findByPk(id);
+    // Ensure the mobile number includes the country code
+    if (mobileNumber) {
+      if (!mobileNumber.startsWith("+91")) {
+        mobileNumber = `+91${mobileNumber}`;
+      }
+    }
+
+    let user = await User.findByPk(id);
 
     if (!user) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     if (oldpassword && password) {
-      const isMatch = await bcrypt.compare(oldpassword, user.password);
+      let isMatch = await bcrypt.compare(oldpassword, user.password);
       if (!isMatch) {
         return errorResponse(res, message.AUTH.INVALID_OLD_PASSWORD, null, 400);
       }
@@ -187,6 +197,7 @@ const updateUser = async (req, res) => {
     user.lastname = lastname;
     user.email = email;
     user.age = age;
+    user.mobileNumber = mobileNumber;
     user.password = password;
     user.country = country;
     user.state = state;

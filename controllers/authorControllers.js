@@ -40,20 +40,28 @@ const getAllAuthorsList = async (req, res) => {
   try {
     logger.info("authorControllers --> getAllAuthorsList --> reached");
 
-    const offset = (page - 1) * pageSize;
-    const limit = parseInt(pageSize, 10);
+    let responseData;
+    if (page && pageSize) {
+      let offset = (page - 1) * pageSize;
+      let limit = parseInt(pageSize, 10);
 
-    const { count, rows } = await Author.findAndCountAll({
-      offset,
-      limit,
-    });
+      let result = await Author.findAndCountAll({
+        offset,
+        limit,
+      });
 
-    const responseData = {
-      authors: rows,
-      total: count,
-      page: parseInt(page, 10),
-      pageSize: limit,
-    };
+      responseData = {
+        authors: result.rows,
+        total: result.count,
+        page: parseInt(page, 10),
+        pageSize: limit,
+      };
+    } else {
+      let result = await Author.findAll({});
+      responseData = {
+        authors: result,
+      };
+    }
 
     logger.info("authorControllers --> getAllAuthorsList --> ended");
     return successResponse(

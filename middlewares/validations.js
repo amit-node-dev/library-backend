@@ -201,6 +201,31 @@ const validateBorrowingRecord = [
   },
 ];
 
+// VALIDATE FOR RESERVATION OF BOOKS
+const validateReservation = [
+  check("user_id")
+    .isInt({ min: 1 })
+    .withMessage("User ID must be a positive integer")
+    .notEmpty()
+    .withMessage("User ID is required"),
+  check("book_id")
+    .isInt({ min: 1 })
+    .withMessage("Book ID must be a positive integer")
+    .notEmpty()
+    .withMessage("Book ID is required"),
+  check("status")
+    .optional()
+    .isIn(["waiting", "notified", "canceled"])
+    .withMessage("Invalid status"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
 module.exports = {
   validateAuth,
   validateNewUser,
@@ -210,4 +235,5 @@ module.exports = {
   validateNewAuthor,
   validatePrevAuthor,
   validateBorrowingRecord,
+  validateReservation,
 };

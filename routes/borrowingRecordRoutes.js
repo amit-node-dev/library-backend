@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
+// MIDDLEWARE
 const checkRole = require("../middlewares/checkRole");
 const { validateBorrowingRecord } = require("../middlewares/validations");
 
+// CONTROLLERS
 const {
   createBorrowingRecord,
   getAllBorrowingRecords,
@@ -12,6 +14,7 @@ const {
   deleteBorrowingRecord,
 } = require("../controllers/borrowingRecordControllers");
 
+// PERMISSION
 const permission = ["super_admin", "admin", "customer"];
 
 router.post(

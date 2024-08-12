@@ -39,12 +39,24 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       reservation_date: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATE,
         allowNull: false,
+        validate: {
+          isDate: true,
+          notNull: {
+            msg: "Reservation date is required",
+          },
+        },
       },
       status: {
         type: DataTypes.ENUM("waiting", "notified", "canceled"),
         defaultValue: "waiting",
+        validate: {
+          isIn: {
+            args: [["waiting", "notified", "canceled"]],
+            msg: "Status must be one of 'waiting', 'notified', or 'canceled'",
+          },
+        },
       },
     },
     {

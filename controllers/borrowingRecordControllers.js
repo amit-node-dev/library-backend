@@ -14,6 +14,7 @@ const createBorrowingRecord = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> createBorrowingRecord --> reached"
     );
+
     const { userId, bookId, borrowDate, dueDate } = req.body;
 
     const book = await Book.findByPk(bookId);
@@ -129,8 +130,8 @@ const updateBorrowingRecord = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> updateBorrowingRecord --> reached"
     );
-    const { id } = req.params;
 
+    const { id } = req.params;
     const record = await BorrowingRecord.findByPk(id);
 
     if (!record) {
@@ -172,8 +173,8 @@ const deleteBorrowingRecord = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> deleteBorrowingRecord --> reached"
     );
-    const { id } = req.params;
 
+    const { id } = req.params;
     const record = await BorrowingRecord.findByPk(id);
 
     if (!record) {
@@ -182,8 +183,8 @@ const deleteBorrowingRecord = async (req, res) => {
 
     const book = await Book.findByPk(record.id);
     book.inventoryCount += 1;
-    await book.save();
 
+    await book.save();
     await record.destroy();
     logger.info(
       "borrowingRecordControllers --> deleteBorrowingRecord --> ended"

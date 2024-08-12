@@ -21,6 +21,7 @@ const bookRoutes = require("./routes/bookRoutes");
 const authorRoutes = require("./routes/authorRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const borrowingRecordRoutes = require("./routes/borrowingRecordRoutes");
+const reservationRoutes = require("./routes/reservationRoutes");
 
 dotenv.config();
 
@@ -63,6 +64,9 @@ app.use(`${process.env.BASE_URL}/categories`, categoryRoutes);
 
 // BORROWING RECORDS ROUTES
 app.use(`${process.env.BASE_URL}/borrowing_records`, borrowingRecordRoutes);
+
+// RESERVATION ROUTES
+app.use(`${process.env.BASE_URL}/reservations`, reservationRoutes);
 
 // AUTHENTICATE SEQUELIZE AND ESTABLISH CONNECTION WITH DB
 db.sequelize

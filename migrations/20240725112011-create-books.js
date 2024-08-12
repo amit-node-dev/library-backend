@@ -37,6 +37,27 @@ module.exports = {
       conclusion: {
         type: Sequelize.TEXT,
       },
+      isbn: {
+        type: Sequelize.STRING(20),
+        unique: true,
+      },
+      publisher: {
+        type: Sequelize.STRING(255),
+      },
+      publication_year: {
+        type: Sequelize.INTEGER,
+      },
+      total_copies: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      },
+      available_copies: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      },
+      location: {
+        type: Sequelize.STRING(255),
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

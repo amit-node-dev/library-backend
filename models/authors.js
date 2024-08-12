@@ -3,9 +3,10 @@ const { Model, DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   class Author extends Model {
     static associate(models) {
-      Author.hasMany(models.Book, {
-        foreignKey: "authorId",
-        as: "books",
+      Author.belongsToMany(models.Book, {
+        through: models.BookAuthor,
+        foreignKey: "author_id",
+        as: "bookauthor",
       });
     }
   }
@@ -27,6 +28,10 @@ module.exports = (sequelize) => {
         validate: {
           isEmail: true,
         },
+      },
+      biography: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
     },
     {

@@ -3,24 +3,30 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Authors", {
+    await queryInterface.createTable("AuditLogs", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      firstname: {
-        type: Sequelize.STRING(25),
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        allowNull: false,
       },
-      lastname: {
-        type: Sequelize.STRING(25),
+      action: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING(30),
+      action_date: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
-      biography: {
-        allowNull: true,
+      details: {
         type: Sequelize.TEXT,
       },
       createdAt: {
@@ -33,7 +39,8 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Authors");
+    await queryInterface.dropTable("AuditLogs");
   },
 };

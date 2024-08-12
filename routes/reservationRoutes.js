@@ -19,8 +19,8 @@ const permission = ["super_admin", "admin", "customer"];
 
 router.post(
   "/",
-  validateReservation,
   checkRole(["super_admin"]),
+  validateReservation,
   createReservation
 );
 router.get("/", checkRole(permission), getAllReservations);

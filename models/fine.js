@@ -3,7 +3,16 @@ const { Model, DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   class Fine extends Model {
-    static associate(models) {}
+    static associate(models) {
+      Fine.belongsTo(models.User, {
+        foreignKey: "user_id",
+        as: "user",
+      });
+      Fine.belongsTo(models.BorrowingRecord, {
+        foreignKey: "record_id",
+        as: "borrowingRecord",
+      });
+    }
   }
 
   Fine.init(

@@ -185,6 +185,22 @@ const validatePrevAuthor = [
   },
 ];
 
+// VALIDATION FOR BORROWING RECORDS FIELD
+const validateBorrowingRecord = [
+  body("userId").isInt({ gt: 0 }).withMessage("Valid user ID is required"),
+  body("bookId").isInt({ gt: 0 }).withMessage("Valid book ID is required"),
+  body("borrowDate").isISO8601().withMessage("Valid borrow date is required"),
+  body("dueDate").isISO8601().withMessage("Valid due date is required"),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
 module.exports = {
   validateAuth,
   validateNewUser,
@@ -193,4 +209,5 @@ module.exports = {
   validateBookField,
   validateNewAuthor,
   validatePrevAuthor,
+  validateBorrowingRecord,
 };

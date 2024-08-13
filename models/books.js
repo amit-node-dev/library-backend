@@ -26,22 +26,6 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      author: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Authors",
-          key: "id",
-        },
-        allowNull: false,
-      },
-      category: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Categories",
-          key: "id",
-        },
-        allowNull: false,
-      },
       description: {
         type: DataTypes.TEXT,
         allowNull: false,
@@ -76,6 +60,14 @@ module.exports = (sequelize) => {
       location: {
         type: DataTypes.STRING(255),
         allowNull: true,
+      },
+      category_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Categories",
+          key: "id",
+        },
+        allowNull: false,
       },
     },
     {

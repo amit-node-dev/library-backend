@@ -46,10 +46,10 @@ const db = {
 // Category.associate({ Book });
 
 // Define model associations dynamically
-Object.keys(db).forEach((modelName) => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
+// Object.keys(db).forEach((modelName) => {
+//   if (db[modelName].associate) {
+//     db[modelName].associate(db);
+//   }
+// });
 
 module.exports = db;

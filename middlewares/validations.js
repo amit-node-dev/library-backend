@@ -1,8 +1,7 @@
 const { body, validationResult } = require("express-validator");
 
 // MODELS
-const { User } = require("../models");
-const { Author } = require("../models");
+const { User, Author, BorrowingRecord } = require("../models");
 
 // UTIL MODULES
 const message = require("../utils/commonMessages");
@@ -185,7 +184,7 @@ const validatePrevAuthor = [
   },
 ];
 
-// VALIDATION FOR BORROWING RECORDS FIELD
+// Validation for creating and updating Borrowing records
 const validateBorrowingRecord = [
   body("userId").isInt({ gt: 0 }).withMessage("Valid user ID is required"),
   body("bookId").isInt({ gt: 0 }).withMessage("Valid book ID is required"),
@@ -201,22 +200,66 @@ const validateBorrowingRecord = [
   },
 ];
 
-// VALIDATE FOR RESERVATION OF BOOKS
+// Validation for creating and updating reservation
 const validateReservation = [
-  check("user_id")
+  body("user_id")
     .isInt({ min: 1 })
     .withMessage("User ID must be a positive integer")
     .notEmpty()
     .withMessage("User ID is required"),
-  check("book_id")
+  body("book_id")
     .isInt({ min: 1 })
     .withMessage("Book ID must be a positive integer")
     .notEmpty()
     .withMessage("Book ID is required"),
-  check("status")
+  body("status")
     .optional()
     .isIn(["waiting", "notified", "canceled"])
     .withMessage("Invalid status"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+// Validation for creating and updating Fine records
+const validateFine = [
+  body("user_id")
+    .isInt({ gt: 0 })
+    .withMessage("User ID must be a positive integer")
+    .notEmpty()
+    .withMessage("User ID is required")
+    .custom(async (user_id) => {
+      const user = await User.findByPk(user_id);
+      if (!user) {
+        throw new Error("User not found");
+      }
+    }),
+  body("record_id")
+    .isInt({ gt: 0 })
+    .withMessage("Record ID must be a positive integer")
+    .notEmpty()
+    .withMessage("Record ID is required")
+    .custom(async (record_id) => {
+      const record = await BorrowingRecord.findByPk(record_id);
+      if (!record) {
+        throw new Error("Borrowing record not found");
+      }
+    }),
+  body("fine_amount")
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Fine amount must be a decimal with up to two decimal places")
+    .notEmpty()
+    .withMessage("Fine amount is required"),
+  body("fine_date")
+    .isISO8601()
+    .withMessage("Fine date must be a valid ISO8601 date format")
+    .notEmpty()
+    .withMessage("Fine date is required"),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -236,4 +279,5 @@ module.exports = {
   validatePrevAuthor,
   validateBorrowingRecord,
   validateReservation,
+  validateFine,
 };

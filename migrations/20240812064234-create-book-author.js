@@ -20,8 +20,6 @@ module.exports = {
         },
         allowNull: false,
       },
-      primaryKey: true,
-      unique: ["book_id", "author_id"],
     });
   },
 

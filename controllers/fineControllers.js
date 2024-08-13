@@ -13,9 +13,18 @@ const createFine = async (req, res) => {
   try {
     logger.info("fineControllers --> createFine --> reached");
 
-    const { borrowingRecordId, amount } = req.body;
+    const { user_id, record_id, fine_amount, fine_date } = req.body;
 
-    const fine = await Fine.create({ borrowingRecordId, amount });
+    if (!user_id || !record_id || !fine_amount || !fine_date) {
+      return errorResponse(res, message.AUTH.INVALID_INPUT, null, 400);
+    }
+
+    const fine = await Fine.create({
+      user_id,
+      record_id,
+      fine_amount,
+      fine_date,
+    });
 
     logger.info("fineControllers --> createFine --> ended");
     return successResponse(res, message.COMMON.ADDED_SUCCESS, fine, 201);
@@ -35,7 +44,9 @@ const getAllFines = async (req, res) => {
   try {
     logger.info("fineControllers --> getAllFines --> reached");
 
-    const fines = await Fine.findAll({ include: ["borrowingRecord"] });
+    const fines = await Fine.findAll({
+      include: ["user", "borrowingRecord"],
+    });
 
     logger.info("fineControllers --> getAllFines --> ended");
     return successResponse(res, message.COMMON.LIST_FETCH_SUCCESS, fines, 200);
@@ -56,8 +67,9 @@ const getFineById = async (req, res) => {
     logger.info("fineControllers --> getFineById --> reached");
 
     const { id } = req.params;
+
     const fine = await Fine.findByPk(id, {
-      include: ["borrowingRecord"],
+      include: ["user", "borrowingRecord"],
     });
 
     if (!fine) {
@@ -83,14 +95,16 @@ const updateFine = async (req, res) => {
     logger.info("fineControllers --> updateFine --> reached");
 
     const { id } = req.params;
-    const fine = await Fine.findByPk(id);
+    const { fine_amount, paid, fine_date } = req.body;
 
+    const fine = await Fine.findByPk(id);
     if (!fine) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    const { amount } = req.body;
-    fine.amount = amount || fine.amount;
+    fine.fine_amount = fine_amount || fine.fine_amount;
+    fine.paid = paid !== undefined ? paid : fine.paid;
+    fine.fine_date = fine_date || fine.fine_date;
 
     await fine.save();
 
@@ -113,8 +127,8 @@ const deleteFine = async (req, res) => {
     logger.info("fineControllers --> deleteFine --> reached");
 
     const { id } = req.params;
-    const fine = await Fine.findByPk(id);
 
+    const fine = await Fine.findByPk(id);
     if (!fine) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }

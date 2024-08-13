@@ -27,23 +27,29 @@ const db = {
   Sequelize,
 };
 
-// Define model associations
-User.associate(db);
-Role.associate(db);
-Book.associate(db);
-Author.associate(db);
-Category.associate(db);
-Reservation.associate(db);
-BorrowingRecord.associate(db);
-Notification.associate(db);
-Feedback.associate(db);
-AuditLog.associate(db);
+// Define model associations (manually)
+// User.associate(db);
+// Role.associate(db);
+// Book.associate(db);
+// Author.associate(db);
+// Category.associate(db);
+// Reservation.associate(db);
+// BorrowingRecord.associate(db);
+// Notification.associate(db);
+// Feedback.associate(db);
+// AuditLog.associate(db);
 
 // User.associate({ Role });
 // Role.associate({ User });
-
 // Book.associate({ Author, Category });
 // Author.associate({ Book });
 // Category.associate({ Book });
+
+// Define model associations dynamically
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
 module.exports = db;

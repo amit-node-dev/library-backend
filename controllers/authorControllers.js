@@ -12,12 +12,13 @@ const message = require("../utils/commonMessages");
 const addNewAuthors = async (req, res) => {
   try {
     logger.info("authorControllers --> addNewAuthors --> reached");
-    const { firstname, lastname, email } = req.body;
 
+    const { firstname, lastname, email, biography } = req.body;
     const authUser = await Author.create({
       firstname,
       lastname,
       email,
+      biography,
     });
 
     logger.info("authorControllers --> addNewAuthors --> ended");
@@ -35,12 +36,11 @@ const addNewAuthors = async (req, res) => {
 
 // GET ALL LIST OF AUTHORS
 const getAllAuthorsList = async (req, res) => {
-  const { page, pageSize } = req.query;
-
   try {
     logger.info("authorControllers --> getAllAuthorsList --> reached");
 
     let responseData;
+    const { page, pageSize } = req.query;
     if (page && pageSize) {
       let offset = (page - 1) * pageSize;
       let limit = parseInt(pageSize, 10);
@@ -83,18 +83,17 @@ const getAllAuthorsList = async (req, res) => {
 
 // GET AUTHORS BY ID
 const getAuthorsById = async (req, res) => {
-  logger.info("authorControllers --> getAuthorsById --> reached");
-  const { id } = req.params;
   try {
-    const authUser = await Author.findByPk(id);
+    logger.info("authorControllers --> getAuthorsById --> reached");
 
-    if (!authUser) {
+    const { id } = req.params;
+    const author = await Author.findByPk(id);
+    if (!author) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     logger.info("authorControllers --> getAuthorsById --> ended");
-
-    return successResponse(res, message.COMMON.FETCH_SUCCESS, authUser, 200);
+    return successResponse(res, message.COMMON.FETCH_SUCCESS, author, 200);
   } catch (error) {
     logger.error("authorControllers --> getAuthorsById --> error", error);
     return errorResponse(
@@ -108,21 +107,21 @@ const getAuthorsById = async (req, res) => {
 
 // UPDATE AUTHORS BY ID
 const updateAuthors = async (req, res) => {
-  logger.info("authorControllers --> updateAuthors --> reached");
-  const { id } = req.params;
-  const { firstname, lastname, email } = req.body;
   try {
-    const authUser = await Author.findByPk(id);
+    logger.info("authorControllers --> updateAuthors --> reached");
 
-    if (!authUser) {
+    const { id } = req.params;
+    const { firstname, lastname, email } = req.body;
+    const author = await Author.findByPk(id);
+    if (!author) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    authUser.firstname = firstname;
-    authUser.lastname = lastname;
-    authUser.email = email;
+    author.firstname = firstname;
+    author.lastname = lastname;
+    author.email = email;
 
-    await authUser.save();
+    await author.save();
 
     logger.info("authorControllers --> updateAuthors --> ended");
     return successResponse(res, message.COMMON.UPDATE_SUCCESS, authUser, 200);
@@ -139,19 +138,19 @@ const updateAuthors = async (req, res) => {
 
 // DELETE AUTHORS BY ID
 const deleteAuthors = async (req, res) => {
-  logger.info("authorControllers --> deleteAuthors --> reached");
-  const { id } = req.params;
   try {
-    const authUser = await Author.findByPk(id);
+    logger.info("authorControllers --> deleteAuthors --> reached");
 
-    if (!authUser) {
+    const { id } = req.params;
+    const author = await Author.findByPk(id);
+    if (!author) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    await authUser.destroy();
+    await author.destroy();
 
     logger.info("authorControllers --> deleteAuthors --> ended");
-    return successResponse(res, message.COMMON.DELETE_SUCCESS, authUser, 200);
+    return successResponse(res, message.COMMON.DELETE_SUCCESS, author, 200);
   } catch (error) {
     logger.error("authorControllers --> deleteAuthors --> error", error);
     return errorResponse(

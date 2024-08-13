@@ -3,14 +3,26 @@ const { Model, DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.BorrowingRecord, { foreignKey: "user_id" });
-      User.hasMany(models.Reservation, { foreignKey: "user_id" });
-      User.hasMany(models.Notification, { foreignKey: "user_id" });
-      User.hasMany(models.Feedback, { foreignKey: "user_id" });
+      // Associations
+      User.hasMany(models.BorrowingRecord, {
+        foreignKey: "user_id",
+        as: "borrowingRecords",
+      });
+      User.hasMany(models.Reservation, {
+        foreignKey: "user_id",
+        as: "reservations",
+      });
+      User.hasMany(models.Notification, {
+        foreignKey: "user_id",
+        as: "notifications",
+      });
       User.belongsTo(models.Role, {
-        foreignKey: "roleId",
+        foreignKey: "role_id",
         as: "role",
       });
+      User.hasMany(models.Feedback, { foreignKey: "user_id", as: "feedbacks" });
+      User.hasMany(models.Fine, { foreignKey: "user_id", as: "fines" });
+      User.hasMany(models.AuditLog, { foreignKey: "user_id", as: "auditLogs" });
     }
   }
 
@@ -46,7 +58,7 @@ module.exports = (sequelize) => {
           },
         },
       },
-      roleId: {
+      role_id: {
         type: DataTypes.INTEGER,
         references: {
           model: "Roles",

@@ -4,11 +4,11 @@ const { Model, DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   class BorrowingRecord extends Model {
     static associate(models) {
-      this.belongsTo(models.User, {
+      BorrowingRecord.belongsTo(models.User, {
         foreignKey: "user_id",
         as: "user",
       });
-      this.belongsTo(models.Book, {
+      BorrowingRecord.belongsTo(models.Book, {
         foreignKey: "book_id",
         as: "book",
       });

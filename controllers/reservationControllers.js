@@ -16,7 +16,6 @@ const createReservation = async (req, res) => {
     const { userId, bookId } = req.body;
 
     const book = await Book.findByPk(bookId);
-
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 400);
     }
@@ -110,14 +109,18 @@ const updateReservation = async (req, res) => {
     logger.info("reservationControllers --> updateReservation --> reached");
 
     const { id } = req.params;
-    const reservation = await Reservation.findByPk(id);
+    const { status, reservation_date } = req.body;
 
+    const reservation = await Reservation.findByPk(id);
     if (!reservation) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    const { status } = req.body;
     reservation.status = status || reservation.status;
+
+    if (reservation_date) {
+      reservation.reservation_date = reservation_date;
+    }
 
     await reservation.save();
 
@@ -143,13 +146,14 @@ const deleteReservation = async (req, res) => {
     logger.info("reservationControllers --> deleteReservation --> reached");
 
     const { id } = req.params;
-    const reservation = await Reservation.findByPk(id);
 
+    const reservation = await Reservation.findByPk(id);
     if (!reservation) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     await reservation.destroy();
+
     logger.info("reservationControllers --> deleteReservation --> ended");
     return successResponse(res, message.COMMON.FETCH_SUCCESS, reservation, 200);
   } catch (error) {

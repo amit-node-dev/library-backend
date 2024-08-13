@@ -18,7 +18,6 @@ const createBorrowingRecord = async (req, res) => {
     const { userId, bookId, borrowDate, dueDate } = req.body;
 
     const book = await Book.findByPk(bookId);
-
     if (!book || book.inventoryCount <= 0) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 400);
     }
@@ -62,6 +61,7 @@ const getAllBorrowingRecords = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> createBorrowingRecord --> reached"
     );
+
     const records = await BorrowingRecord.findAll({
       include: ["user", "book"],
     });
@@ -101,7 +101,6 @@ const getBorrowingRecordById = async (req, res) => {
     const record = await BorrowingRecord.findByPk(id, {
       include: ["user", "book"],
     });
-
     if (!record) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
@@ -132,20 +131,23 @@ const updateBorrowingRecord = async (req, res) => {
     );
 
     const { id } = req.params;
-    const record = await BorrowingRecord.findByPk(id);
+    const { returnDate, fineAmount, status } = req.body;
 
+    const record = await BorrowingRecord.findByPk(id);
     if (!record) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    const { returnDate } = req.body;
-    record.returnDate = returnDate || record.returnDate;
+    const book = await Book.findByPk(record.bookId);
 
     if (returnDate) {
-      const book = await Book.findByPk(record.bookId);
+      record.returnDate = returnDate;
       book.inventoryCount += 1;
       await book.save();
     }
+
+    if (fineAmount) record.fineAmount = fineAmount;
+    if (status) record.status = status;
 
     await record.save();
 
@@ -175,8 +177,8 @@ const deleteBorrowingRecord = async (req, res) => {
     );
 
     const { id } = req.params;
-    const record = await BorrowingRecord.findByPk(id);
 
+    const record = await BorrowingRecord.findByPk(id);
     if (!record) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
@@ -186,6 +188,7 @@ const deleteBorrowingRecord = async (req, res) => {
 
     await book.save();
     await record.destroy();
+
     logger.info(
       "borrowingRecordControllers --> deleteBorrowingRecord --> ended"
     );

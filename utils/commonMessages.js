@@ -9,6 +9,7 @@ module.exports = {
     CANNOT_DELETE_SELF: "Cannot delete itself",
   },
   AUTH: {
+    INVALID_INPUT: "Invalid Inputs",
     INVALID_USER: "Invalid Email or User does not exist",
     INVALID_PASSWORD: "Invalid Password",
     INVALID_OLD_PASSWORD: "Invalid Old Password",

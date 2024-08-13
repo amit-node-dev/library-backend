@@ -1,5 +1,5 @@
 // BOOK MODEL
-const { Book, sequelize } = require("../models");
+const { Book, Author, Category, sequelize } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -12,25 +12,47 @@ const message = require("../utils/commonMessages");
 const addNewBooks = async (req, res) => {
   try {
     logger.info("bookControllers --> addNewBooks --> reached");
-    const { bookname, title, authorId, categoryId, description, conclusion } =
-      req.body;
 
-    const responseData = await Book.create({
+    const {
       bookname,
       title,
-      authorId,
+      authorIds,
       categoryId,
       description,
       conclusion,
-    });
+      isbn,
+      publisher,
+      publication_year,
+      total_copies,
+      available_copies,
+      location,
+    } = req.body;
+
+    const newBookData = await Book.create(
+      {
+        bookname,
+        title,
+        description,
+        conclusion,
+        isbn,
+        publisher,
+        publication_year,
+        total_copies,
+        available_copies,
+        location,
+        category_id: categoryId,
+      },
+      { include: [{ model: Category, as: "category" }] }
+    );
+
+    // Associating with Authors
+    if (authorIds && authorIds.length > 0) {
+      const authors = await Author.findAll({ where: { id: authorIds } });
+      await newBookData.setAuthors(authors);
+    }
 
     logger.info("bookControllers --> addNewBooks --> ended");
-    return successResponse(
-      res,
-      message.COMMON.ADDED_SUCCESS,
-      responseData,
-      201
-    );
+    return successResponse(res, message.COMMON.ADDED_SUCCESS, newBookData, 201);
   } catch (error) {
     logger.error("bookControllers --> addNewBooks --> error", error);
     return errorResponse(
@@ -44,11 +66,10 @@ const addNewBooks = async (req, res) => {
 
 // GET ALL LIST OF BOOKS WITH PAGINATION
 const getAllBooksList = async (req, res) => {
-  const { page = 1, pageSize = 5 } = req.query;
-
   try {
     logger.info("bookControllers --> getAllBooksList --> reached");
 
+    const { page = 1, pageSize = 5 } = req.query;
     const offset = (page - 1) * pageSize;
     const limit = parseInt(pageSize, 10);
 
@@ -57,12 +78,12 @@ const getAllBooksList = async (req, res) => {
       limit,
       include: [
         {
-          model: sequelize.models.Author,
-          as: "author",
+          model: Author,
+          as: "authors",
           attributes: ["firstname", "lastname"],
         },
         {
-          model: sequelize.models.Category,
+          model: Category,
           as: "category",
           attributes: ["name"],
         },
@@ -96,17 +117,21 @@ const getAllBooksList = async (req, res) => {
 
 // GET BOOKS BY ID
 const getBooksById = async (req, res) => {
-  logger.info("bookControllers --> getBooksById --> reached");
-  const { id } = req.params;
   try {
-    const book = await Book.findByPk(id);
+    logger.info("bookControllers --> getBooksById --> reached");
 
+    const { id } = req.params;
+    const book = await Book.findByPk(id, {
+      include: [
+        { model: Author, as: "authors", attributes: ["firstname", "lastname"] },
+        { model: Category, as: "category", attributes: ["name"] },
+      ],
+    });
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     logger.info("bookControllers --> getBooksById --> ended");
-
     return successResponse(res, message.COMMON.FETCH_SUCCESS, book, 200);
   } catch (error) {
     logger.error("bookControllers --> getBooksById --> error", error);
@@ -121,25 +146,49 @@ const getBooksById = async (req, res) => {
 
 // UPDATE BOOKS BY ID
 const updateBooks = async (req, res) => {
-  logger.info("bookControllers --> updateBooks --> reached");
-  const { id } = req.params;
-  const { bookname, title, authorId, categoryId, description, conclusion } =
-    req.body;
   try {
-    const book = await Book.findByPk(id);
+    logger.info("bookControllers --> updateBooks --> reached");
 
+    const { id } = req.params;
+    const {
+      bookname,
+      title,
+      authorIds,
+      categoryId,
+      description,
+      conclusion,
+      isbn,
+      publisher,
+      publication_year,
+      total_copies,
+      available_copies,
+      location,
+    } = req.body;
+    const book = await Book.findByPk(id);
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    book.bookname = bookname;
-    book.title = title;
-    book.authorId = authorId;
-    book.categoryId = categoryId;
-    book.description = description;
-    book.conclusion = conclusion;
+    // Update book details
+    await book.update({
+      bookname,
+      title,
+      description,
+      conclusion,
+      isbn,
+      publisher,
+      publication_year,
+      total_copies,
+      available_copies,
+      location,
+      category_id: categoryId,
+    });
 
-    await book.save();
+    // Update authors association
+    if (authorIds && authorIds.length > 0) {
+      const authors = await Author.findAll({ where: { id: authorIds } });
+      await book.setAuthors(authors);
+    }
 
     logger.info("bookControllers --> updateBooks --> ended");
     return successResponse(res, message.COMMON.UPDATE_SUCCESS, book, 200);
@@ -156,11 +205,11 @@ const updateBooks = async (req, res) => {
 
 // DELETE BOOKS BY ID
 const deleteBooks = async (req, res) => {
-  logger.info("bookControllers --> deleteBooks --> reached");
-  const { id } = req.params;
   try {
-    const book = await Book.findByPk(id);
+    logger.info("bookControllers --> deleteBooks --> reached");
 
+    const { id } = req.params;
+    const book = await Book.findByPk(id);
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }

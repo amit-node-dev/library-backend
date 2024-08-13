@@ -14,7 +14,6 @@ BookAuthor.init(
         model: Book,
         key: "id",
       },
-      onDelete: "CASCADE",
       allowNull: false,
     },
     author_id: {
@@ -23,14 +22,12 @@ BookAuthor.init(
         model: Author,
         key: "id",
       },
-      onDelete: "CASCADE",
       allowNull: false,
     },
   },
   {
     sequelize,
     modelName: "BookAuthor",
-    tableName: "BookAuthors",
     timestamps: false,
   }
 );

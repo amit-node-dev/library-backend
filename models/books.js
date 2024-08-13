@@ -26,7 +26,7 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      authorId: {
+      author: {
         type: DataTypes.INTEGER,
         references: {
           model: "Authors",
@@ -34,7 +34,7 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
       },
-      categoryId: {
+      category: {
         type: DataTypes.INTEGER,
         references: {
           model: "Categories",

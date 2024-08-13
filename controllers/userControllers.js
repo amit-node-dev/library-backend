@@ -31,10 +31,8 @@ const createUser = async (req, res) => {
     let ageInt = parseInt(age);
 
     // Ensure the mobile number includes the country code
-    if (mobileNumber) {
-      if (!mobileNumber.startsWith("+91")) {
-        mobileNumber = `+91${mobileNumber}`;
-      }
+    if (mobileNumber && !mobileNumber.startsWith("+91")) {
+      mobileNumber = `+91${mobileNumber}`;
     }
 
     let findUserByMobileNumber = await User.findOne({
@@ -85,10 +83,10 @@ const createUser = async (req, res) => {
 
 // GET ALL LIST OF USERS
 const getAllUserList = async (req, res) => {
-  const { page = 1, pageSize = 5 } = req.query;
-
   try {
     logger.info("userControllers --> getAllUserList --> reached");
+
+    const { page = 1, pageSize = 5 } = req.query;
     const offset = (page - 1) * pageSize;
     const limit = parseInt(pageSize, 10);
 
@@ -104,7 +102,7 @@ const getAllUserList = async (req, res) => {
       ],
     });
 
-    const responseData = {
+    let responseData = {
       users: rows,
       total: count,
       page: parseInt(page, 10),
@@ -131,17 +129,16 @@ const getAllUserList = async (req, res) => {
 
 // GET USER BY ID
 const getUserById = async (req, res) => {
-  logger.info("userControllers --> getUserById --> reached");
-  const { id } = req.params;
   try {
-    const user = await User.findByPk(id);
+    logger.info("userControllers --> getUserById --> reached");
 
+    const { id } = req.params;
+    const user = await User.findByPk(id);
     if (!user) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     logger.info("userControllers --> getUserById --> ended");
-
     return successResponse(res, message.COMMON.FETCH_SUCCESS, user, 200);
   } catch (error) {
     logger.error("userControllers --> getUserById --> error", error);
@@ -156,31 +153,30 @@ const getUserById = async (req, res) => {
 
 // UPDATE USER BY ID
 const updateUser = async (req, res) => {
-  logger.info("userControllers --> updateUser --> reached");
-  let { id } = req.params;
-  let {
-    firstname,
-    lastname,
-    email,
-    age,
-    mobileNumber,
-    oldpassword,
-    password,
-    country,
-    state,
-    city,
-    role,
-  } = req.body;
   try {
+    logger.info("userControllers --> updateUser --> reached");
+
+    let { id } = req.params;
+    let {
+      firstname,
+      lastname,
+      email,
+      age,
+      mobileNumber,
+      oldpassword,
+      password,
+      country,
+      state,
+      city,
+      role,
+    } = req.body;
+
     // Ensure the mobile number includes the country code
-    if (mobileNumber) {
-      if (!mobileNumber.startsWith("+91")) {
-        mobileNumber = `+91${mobileNumber}`;
-      }
+    if (mobileNumber && !mobileNumber.startsWith("+91")) {
+      mobileNumber = `+91${mobileNumber}`;
     }
 
     let user = await User.findByPk(id);
-
     if (!user) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
@@ -221,11 +217,11 @@ const updateUser = async (req, res) => {
 
 // DELETE USER BY ID
 const deleteUser = async (req, res) => {
-  logger.info("userControllers --> deleteUser --> reached");
-  const { id } = req.params;
   try {
-    const user = await User.findByPk(id);
+    logger.info("userControllers --> deleteUser --> reached");
 
+    const { id } = req.params;
+    const user = await User.findByPk(id);
     if (!user) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }

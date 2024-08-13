@@ -1,38 +1,48 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
-const Book = require("./Book");
-const Author = require("./Author");
 
-class BookAuthor extends Model {}
+module.exports = (sequelize) => {
+  class BookAuthor extends Model {
+    static associate(models) {
+      // BookAuthor belongs to Book
+      BookAuthor.belongsTo(models.Book, {
+        foreignKey: "book_id",
+        as: "book",
+      });
 
-BookAuthor.init(
-  {
-    book_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: Book,
-        key: "id",
-      },
-      allowNull: false,
-    },
-    author_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: Author,
-        key: "id",
-      },
-      allowNull: false,
-    },
-  },
-  {
-    sequelize,
-    modelName: "BookAuthor",
-    timestamps: false,
+      // BookAuthor belongs to Author
+      BookAuthor.belongsTo(models.Author, {
+        foreignKey: "author_id",
+        as: "author",
+      });
+    }
   }
-);
 
-Book.belongsToMany(Author, { through: BookAuthor, foreignKey: "book_id" });
-Author.belongsToMany(Book, { through: BookAuthor, foreignKey: "author_id" });
+  BookAuthor.init(
+    {
+      book_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Book",
+          key: "id",
+        },
+        allowNull: false,
+      },
+      author_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Author",
+          key: "id",
+        },
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "BookAuthor",
+      timestamps: false,
+    }
+  );
 
-module.exports = BookAuthor;
+  return BookAuthor;
+};

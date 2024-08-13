@@ -4,14 +4,29 @@ const { Model, DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   class Book extends Model {
     static associate(models) {
+      // Book belongs to many Authors through BookAuthor
       Book.belongsToMany(models.Author, {
         through: models.BookAuthor,
         foreignKey: "book_id",
-        as: "bookauthor",
+        as: "authors",
       });
+
+      // Book belongs to a Category
       Book.belongsTo(models.Category, {
         foreignKey: "category_id",
         as: "category",
+      });
+
+      // Book has many BorrowingRecords
+      Book.hasMany(models.BorrowingRecord, {
+        foreignKey: "book_id",
+        as: "borrowingRecords",
+      });
+
+      // Book has many Reservations
+      Book.hasMany(models.Reservation, {
+        foreignKey: "book_id",
+        as: "reservations",
       });
     }
   }

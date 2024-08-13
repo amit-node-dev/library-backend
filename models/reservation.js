@@ -6,11 +6,11 @@ module.exports = (sequelize) => {
     static associate(models) {
       Reservation.belongsTo(models.User, {
         foreignKey: "user_id",
-        as: "user",
+        as: "users",
       });
       Reservation.belongsTo(models.Book, {
         foreignKey: "book_id",
-        as: "book",
+        as: "books",
       });
     }
   }

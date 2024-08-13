@@ -58,7 +58,7 @@ const createUser = async (req, res) => {
         country,
         state,
         city,
-        roleId: role,
+        role,
         mobileNumber,
       });
     }

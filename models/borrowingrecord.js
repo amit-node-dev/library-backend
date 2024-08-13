@@ -6,11 +6,15 @@ module.exports = (sequelize) => {
     static associate(models) {
       BorrowingRecord.belongsTo(models.User, {
         foreignKey: "user_id",
-        as: "user",
+        as: "users",
       });
       BorrowingRecord.belongsTo(models.Book, {
         foreignKey: "book_id",
-        as: "book",
+        as: "books",
+      });
+      BorrowingRecord.hasMany(models.Fine, {
+        foreignKey: "record_id",
+        as: "fines",
       });
     }
   }

@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../core-configurations/sequelize-config/sequelize");
 
+// Import models
 const User = require("./user")(sequelize);
 const Role = require("./role")(sequelize);
 const Book = require("./books")(sequelize);
@@ -10,7 +11,9 @@ const Reservation = require("./reservation")(sequelize);
 const BorrowingRecord = require("./borrowingrecord")(sequelize);
 const Notification = require("./notification")(sequelize);
 const Feedback = require("./feedback")(sequelize);
+const Fine = require("./fine")(sequelize);
 const AuditLog = require("./auditlog")(sequelize);
+const BookAuthor = require("./bookauthor")(sequelize);
 
 const db = {
   User,
@@ -22,34 +25,32 @@ const db = {
   BorrowingRecord,
   Notification,
   Feedback,
+  Fine,
   AuditLog,
+  BookAuthor,
   sequelize,
   Sequelize,
 };
 
-// Define model associations (manually)
-// User.associate(db);
-// Role.associate(db);
-// Book.associate(db);
-// Author.associate(db);
-// Category.associate(db);
-// Reservation.associate(db);
-// BorrowingRecord.associate(db);
-// Notification.associate(db);
-// Feedback.associate(db);
-// AuditLog.associate(db);
-
-// User.associate({ Role });
-// Role.associate({ User });
-// Book.associate({ Author, Category });
-// Author.associate({ Book });
-// Category.associate({ Book });
-
-// Define model associations dynamically
-// Object.keys(db).forEach((modelName) => {
-//   if (db[modelName].associate) {
-//     db[modelName].associate(db);
-//   }
-// });
+// Define model associations
+User.associate({
+  BorrowingRecord,
+  Reservation,
+  Notification,
+  Role,
+  Feedback,
+  Fine,
+  AuditLog,
+});
+BorrowingRecord.associate({ User, Book, Fine });
+Reservation.associate({ User, Book });
+Notification.associate({ User });
+Role.associate({ User });
+Feedback.associate({ User });
+Fine.associate({ User, BorrowingRecord });
+AuditLog.associate({ User });
+Book.associate({ Author, BookAuthor, Category, BorrowingRecord, Reservation });
+Author.associate({ Book, BookAuthor });
+Category.associate({ Book });
 
 module.exports = db;

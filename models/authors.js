@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
       Author.belongsToMany(models.Book, {
         through: models.BookAuthor,
         foreignKey: "author_id",
-        as: "bookauthor",
+        as: "bookauthors",
       });
     }
   }

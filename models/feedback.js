@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
     static associate(models) {
       Feedback.belongsTo(models.User, {
         foreignKey: "user_id",
-        as: "user",
+        as: "users",
       });
     }
   }

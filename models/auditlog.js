@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
     static associate(models) {
       AuditLog.belongsTo(models.User, {
         foreignKey: "user_id",
-        as: "user",
+        as: "users",
       });
     }
   }

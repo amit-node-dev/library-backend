@@ -37,7 +37,7 @@ module.exports = {
           len: [8, 100],
         },
       },
-      role: {
+      role_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "Roles",

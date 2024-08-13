@@ -18,8 +18,8 @@ module.exports = (sequelize) => {
         as: "notifications",
       });
       User.belongsTo(models.Role, {
-        foreignKey: "role",
-        as: "roles",
+        foreignKey: "role_id",
+        as: "role",
       });
       User.hasMany(models.Feedback, { foreignKey: "user_id", as: "feedbacks" });
       User.hasMany(models.Fine, { foreignKey: "user_id", as: "fines" });
@@ -59,7 +59,7 @@ module.exports = (sequelize) => {
           },
         },
       },
-      role: {
+      role_id: {
         type: DataTypes.INTEGER,
         references: {
           model: "Roles",

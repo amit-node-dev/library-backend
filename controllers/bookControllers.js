@@ -1,5 +1,5 @@
 // BOOK MODEL
-const { Book, Author, Category, sequelize } = require("../models");
+const { Book, Author, Category, BookAuthor, sequelize } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -40,7 +40,7 @@ const addNewBooks = async (req, res) => {
         total_copies,
         available_copies,
         location,
-        category_id: categoryId,
+        category: categoryId,
       },
       { include: [{ model: Category, as: "category" }] }
     );
@@ -181,7 +181,7 @@ const updateBooks = async (req, res) => {
       total_copies,
       available_copies,
       location,
-      category_id: categoryId,
+      category: categoryId,
     });
 
     // Update authors association

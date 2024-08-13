@@ -51,6 +51,7 @@ Fine.associate({ User, BorrowingRecord });
 AuditLog.associate({ User });
 Book.associate({ Author, BookAuthor, Category, BorrowingRecord, Reservation });
 Author.associate({ Book, BookAuthor });
+BookAuthor.associate({ Book, Author });
 Category.associate({ Book });
 
 module.exports = db;

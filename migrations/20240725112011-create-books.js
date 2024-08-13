@@ -15,7 +15,7 @@ module.exports = {
       title: {
         type: Sequelize.TEXT,
       },
-      author: {
+      author_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "Authors",
@@ -23,7 +23,7 @@ module.exports = {
         },
         allowNull: false,
       },
-      category: {
+      category_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "Categories",

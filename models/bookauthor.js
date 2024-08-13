@@ -7,13 +7,13 @@ module.exports = (sequelize) => {
       // BookAuthor belongs to Book
       BookAuthor.belongsTo(models.Book, {
         foreignKey: "book_id",
-        as: "book",
+        as: "books",
       });
 
       // BookAuthor belongs to Author
       BookAuthor.belongsTo(models.Author, {
         foreignKey: "author_id",
-        as: "author",
+        as: "authors",
       });
     }
   }

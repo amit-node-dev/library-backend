@@ -42,21 +42,21 @@ module.exports = {
         unique: true,
       },
       publisher: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING(50),
       },
       publication_year: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       total_copies: {
         type: Sequelize.INTEGER,
-        defaultValue: 1,
+        defaultValue: 0,
       },
       available_copies: {
         type: Sequelize.INTEGER,
-        defaultValue: 1,
+        defaultValue: 0,
       },
       location: {
-        type: Sequelize.STRING(200),
+        type: Sequelize.STRING(50),
       },
       createdAt: {
         allowNull: false,

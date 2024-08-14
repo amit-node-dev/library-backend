@@ -16,17 +16,19 @@ const addNewBooks = async (req, res) => {
     const {
       bookname,
       title,
-      authorIds,
+      authorId,
       categoryId,
       description,
       conclusion,
       isbn,
       publisher,
-      publication_year,
-      total_copies,
+      publicationYear,
+      totalCopies,
       available_copies,
       location,
     } = req.body;
+
+    console.log("DATA ", req.body);
 
     const newBookData = await Book.create(
       {
@@ -36,20 +38,15 @@ const addNewBooks = async (req, res) => {
         conclusion,
         isbn,
         publisher,
-        publication_year,
-        total_copies,
+        publication_year: publicationYear,
+        total_copies: parseInt(totalCopies),
         available_copies,
         location,
-        category: categoryId,
+        category_id: categoryId,
+        author_id: authorId,
       },
       { include: [{ model: Category, as: "category" }] }
     );
-
-    // Associating with Authors
-    if (authorIds && authorIds.length > 0) {
-      const authors = await Author.findAll({ where: { id: authorIds } });
-      await newBookData.setAuthors(authors);
-    }
 
     logger.info("bookControllers --> addNewBooks --> ended");
     return successResponse(res, message.COMMON.ADDED_SUCCESS, newBookData, 201);
@@ -153,17 +150,18 @@ const updateBooks = async (req, res) => {
     const {
       bookname,
       title,
-      authorIds,
+      authorId,
       categoryId,
       description,
       conclusion,
       isbn,
       publisher,
-      publication_year,
-      total_copies,
+      publicationYear,
+      totalCopies,
       available_copies,
       location,
     } = req.body;
+
     const book = await Book.findByPk(id);
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
@@ -177,18 +175,13 @@ const updateBooks = async (req, res) => {
       conclusion,
       isbn,
       publisher,
-      publication_year,
-      total_copies,
+      publication_year: publicationYear,
+      total_copies: parseInt(totalCopies),
       available_copies,
       location,
-      category: categoryId,
+      category_id: categoryId,
+      author_id: authorId,
     });
-
-    // Update authors association
-    if (authorIds && authorIds.length > 0) {
-      const authors = await Author.findAll({ where: { id: authorIds } });
-      await book.setAuthors(authors);
-    }
 
     logger.info("bookControllers --> updateBooks --> ended");
     return successResponse(res, message.COMMON.UPDATE_SUCCESS, book, 200);

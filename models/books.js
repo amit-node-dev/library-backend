@@ -55,11 +55,11 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       publisher: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(50),
         allowNull: true,
       },
       publication_year: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(50),
         allowNull: true,
       },
       total_copies: {
@@ -73,8 +73,16 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       location: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(50),
         allowNull: true,
+      },
+      author_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Authors",
+          key: "id",
+        },
+        allowNull: false,
       },
       category_id: {
         type: DataTypes.INTEGER,

@@ -40,7 +40,7 @@ const addNewBooks = async (req, res) => {
         publisher,
         publication_year: publicationYear,
         total_copies: parseInt(totalCopies),
-        available_copies,
+        available_copies: parseInt(totalCopies),
         location,
         category_id: categoryId,
         author_id: authorId,

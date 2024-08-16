@@ -29,25 +29,25 @@ const createUser = async (req, res) => {
     } = req.body;
 
     let ageInt = parseInt(age);
+    let findUserByMobileNumber;
+    let responseData;
 
     // Ensure the mobile number includes the country code
     if (mobileNumber && !mobileNumber.startsWith("+91")) {
       mobileNumber = `+91${mobileNumber}`;
-    }
 
-    let findUserByMobileNumber = await User.findOne({
-      where: { mobileNumber },
-    });
+      findUserByMobileNumber = await User.findOne({
+        where: { mobileNumber },
+      });
 
-    let responseData;
+      if (findUserByMobileNumber) {
+        findUserByMobileNumber.firstname = firstname;
+        findUserByMobileNumber.lastname = lastname;
+        findUserByMobileNumber.email = email;
+        findUserByMobileNumber.password = password;
 
-    if (findUserByMobileNumber) {
-      findUserByMobileNumber.firstname = firstname;
-      findUserByMobileNumber.lastname = lastname;
-      findUserByMobileNumber.email = email;
-      findUserByMobileNumber.password = password;
-
-      responseData = await findUserByMobileNumber.save();
+        responseData = await findUserByMobileNumber.save();
+      }
     } else {
       responseData = await User.create({
         firstname,

@@ -177,9 +177,29 @@ const getAllBorrowingRecords = async (req, res) => {
       "borrowingRecordControllers --> createBorrowingRecord --> reached"
     );
 
-    const records = await BorrowingRecord.findAll({
+    const { page = 1, pageSize = 5, status } = req.query;
+    const offset = (page - 1) * pageSize;
+    const limit = parseInt(pageSize, 10);
+
+    // Create the where clause based on the status query parameter
+    const whereClause = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const { count, rows } = await BorrowingRecord.findAndCountAll({
+      where: whereClause,
+      offset,
+      limit,
       include: ["users", "books"],
     });
+
+    const responseData = {
+      borrowRecords: rows,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
 
     logger.info(
       "borrowingRecordControllers --> createBorrowingRecord --> ended"
@@ -187,7 +207,7 @@ const getAllBorrowingRecords = async (req, res) => {
     return successResponse(
       res,
       message.COMMON.LIST_FETCH_SUCCESS,
-      records,
+      responseData,
       200
     );
   } catch (error) {

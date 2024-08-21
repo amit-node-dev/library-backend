@@ -5,16 +5,18 @@ const router = express.Router();
 const {
   addBorrowingRecord,
   getBorrowBookRecordStatus,
-  getAllBorrowingRecords,
   getBorrowingRecordById,
+  returnBorrowingRecord,
+  getAllBorrowingRecords,
   updateBorrowingRecord,
   deleteBorrowingRecord,
 } = require("../controllers/borrowingRecordControllers");
 
 router.post("/add_borrow_records", addBorrowingRecord);
 router.post("/get_borrow_status", getBorrowBookRecordStatus);
-router.get("/", getAllBorrowingRecords);
 router.get("/:id", getBorrowingRecordById);
+router.post("/return_borrow_records", returnBorrowingRecord);
+router.get("/", getAllBorrowingRecords);
 router.put("/:id", updateBorrowingRecord);
 router.delete("/:id", deleteBorrowingRecord);
 

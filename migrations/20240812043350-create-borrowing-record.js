@@ -39,8 +39,8 @@ module.exports = {
         defaultValue: 0.0,
       },
       status: {
-        type: Sequelize.ENUM("borrowed", "returned", "overdue"),
-        defaultValue: "borrowed",
+        type: Sequelize.ENUM("none", "borrowed", "returned", "overdue"),
+        defaultValue: "none",
       },
       createdAt: {
         allowNull: false,

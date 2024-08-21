@@ -66,10 +66,6 @@ module.exports = (sequelize) => {
         type: DataTypes.DATE,
         validate: {
           isDate: true,
-          isAfter: {
-            args: Sequelize.col("borrow_date"),
-            msg: "Return date must be after the borrow date",
-          },
         },
       },
       fine_amount: {
@@ -81,11 +77,11 @@ module.exports = (sequelize) => {
         },
       },
       status: {
-        type: DataTypes.ENUM("borrowed", "returned", "overdue"),
-        defaultValue: "borrowed",
+        type: DataTypes.ENUM("none", "borrowed", "returned", "overdue"),
+        defaultValue: "none",
         validate: {
           isIn: {
-            args: [["borrowed", "returned", "overdue"]],
+            args: [["none", "borrowed", "returned", "overdue"]],
             msg: "Status must be one of 'borrowed', 'returned', or 'overdue'",
           },
         },

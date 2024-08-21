@@ -97,7 +97,7 @@ module.exports = {
           publisher: "J.B. Lippincott & Co.",
           publication_year: "1960-07-11",
           total_copies: 6,
-          available_copies: 6,
+          available_copies: 0,
           location: "Shelf D",
           category_id: categoryId,
           author_id: authorId,

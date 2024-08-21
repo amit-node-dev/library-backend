@@ -15,7 +15,7 @@ const addBorrowingRecord = async (req, res) => {
       "borrowingRecordControllers --> addBorrowingRecord --> reached"
     );
 
-    const { userId, bookId, borrowDate, dueDate } = req.body;
+    const { userId, bookId, borrowDate, dueDate, status } = req.body;
 
     const book = await Book.findByPk(bookId);
     if (!book || book.available_copies <= 0) {
@@ -27,6 +27,7 @@ const addBorrowingRecord = async (req, res) => {
       book_id: bookId,
       borrow_date: borrowDate,
       due_date: dueDate,
+      status,
     });
 
     book.available_copies -= 1;
@@ -35,7 +36,7 @@ const addBorrowingRecord = async (req, res) => {
     logger.info("borrowingRecordControllers --> addBorrowingRecord --> ended");
     return successResponse(
       res,
-      message.COMMON.ADDED_SUCCESS,
+      "You have been borrowed successfully",
       responseData,
       201
     );
@@ -62,7 +63,6 @@ const getBorrowBookRecordStatus = async (req, res) => {
 
     const { userId, bookId } = req.body;
 
-    // Fetch the borrowing record based on userId and bookId
     const borrowRecord = await BorrowingRecord.findOne({
       where: {
         user_id: userId,
@@ -70,28 +70,17 @@ const getBorrowBookRecordStatus = async (req, res) => {
       },
     });
 
-    if (!borrowRecord) {
-      return successResponse(res, message.COMMON.NOT_FOUND, null, 200);
+    if (borrowRecord === null) {
+      return successResponse(res, message.COMMON.FETCH_SUCCESS, null, 200);
     }
 
     // Check if the book is still borrowed
-    const currentDate = new Date();
     const borrowDate = new Date(borrowRecord.borrow_date);
     const dueDate = new Date(borrowRecord.due_date);
     const returnDate = borrowRecord.return_date
       ? new Date(borrowRecord.return_date)
       : null;
-
-    // Determine the borrow status
-    let status = "unknown";
-
-    if (currentDate >= borrowDate && currentDate <= dueDate) {
-      status = "borrowed";
-    } else if (returnDate) {
-      status = "returned";
-    } else if (currentDate > dueDate) {
-      status = "overdue";
-    }
+    const status = borrowRecord.status;
 
     const responseData = {
       borrowDate,
@@ -130,31 +119,38 @@ const returnBorrowingRecord = async (req, res) => {
       "borrowingRecordControllers --> returnBorrowingRecord --> reached"
     );
 
-    const { id } = req.params;
-    const { returnDate, fineAmount, status } = req.body;
+    const { userId, bookId, returnDate, fineAmount, status } = req.body;
 
-    const record = await BorrowingRecord.findByPk(id);
+    const record = await BorrowingRecord.findOne({
+      where: {
+        user_id: userId,
+        book_id: bookId,
+      },
+    });
+
     if (!record) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    const book = await Book.findByPk(record.bookId);
+    const book = await Book.findByPk(bookId);
 
     if (returnDate) {
-      record.returnDate = returnDate;
-      book.inventoryCount += 1;
+      book.available_copies += 1;
       await book.save();
+
+      record.return_date = returnDate;
+      record.status = status;
     }
 
-    if (fineAmount) record.fineAmount = fineAmount;
-    if (status) record.status = status;
-
+    if (fineAmount !== undefined && fineAmount !== null && !isNaN(fineAmount)) {
+      record.fine_amount = fineAmount;
+    }
     await record.save();
 
     logger.info(
       "borrowingRecordControllers --> returnBorrowingRecord --> ended"
     );
-    return successResponse(res, message.COMMON.UPDATE_SUCCESS, record, 200);
+    return successResponse(res, "Returned Successfully", record, 200);
   } catch (error) {
     logger.error(
       "borrowingRecordControllers --> returnBorrowingRecord --> error",
@@ -212,9 +208,7 @@ const getBorrowingRecordById = async (req, res) => {
 
     const { id } = req.params;
 
-    const record = await BorrowingRecord.findByPk(id, {
-      include: ["user", "book"],
-    });
+    const record = await BorrowingRecord.findByPk(id);
     if (!record) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
@@ -324,8 +318,9 @@ const deleteBorrowingRecord = async (req, res) => {
 module.exports = {
   addBorrowingRecord,
   getBorrowBookRecordStatus,
-  getAllBorrowingRecords,
   getBorrowingRecordById,
+  returnBorrowingRecord,
+  getAllBorrowingRecords,
   updateBorrowingRecord,
   deleteBorrowingRecord,
 };

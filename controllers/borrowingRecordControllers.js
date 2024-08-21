@@ -68,6 +68,7 @@ const getBorrowBookRecordStatus = async (req, res) => {
         user_id: userId,
         book_id: bookId,
       },
+      order: [["id", "DESC"]],
     });
 
     if (borrowRecord === null) {
@@ -81,12 +82,14 @@ const getBorrowBookRecordStatus = async (req, res) => {
       ? new Date(borrowRecord.return_date)
       : null;
     const status = borrowRecord.status;
+    const recordId = borrowRecord.id;
 
     const responseData = {
       borrowDate,
       dueDate,
       returnDate,
       status,
+      recordId,
     };
 
     logger.info(
@@ -119,12 +122,14 @@ const returnBorrowingRecord = async (req, res) => {
       "borrowingRecordControllers --> returnBorrowingRecord --> reached"
     );
 
-    const { userId, bookId, returnDate, fineAmount, status } = req.body;
+    const { recordId, userId, bookId, returnDate, fineAmount, status } =
+      req.body;
 
     const record = await BorrowingRecord.findOne({
       where: {
         user_id: userId,
         book_id: bookId,
+        id: recordId,
       },
     });
 
@@ -150,7 +155,7 @@ const returnBorrowingRecord = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> returnBorrowingRecord --> ended"
     );
-    return successResponse(res, "Returned Successfully", record, 200);
+    return successResponse(res, "Returned Successfully", record, 201);
   } catch (error) {
     logger.error(
       "borrowingRecordControllers --> returnBorrowingRecord --> error",
@@ -173,7 +178,7 @@ const getAllBorrowingRecords = async (req, res) => {
     );
 
     const records = await BorrowingRecord.findAll({
-      include: ["user", "book"],
+      include: ["users", "books"],
     });
 
     logger.info(

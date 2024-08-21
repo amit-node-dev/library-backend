@@ -184,47 +184,6 @@ const validatePrevAuthor = [
   },
 ];
 
-// Validation for creating and updating Borrowing records
-const validateBorrowingRecord = [
-  body("userId").isInt({ gt: 0 }).withMessage("Valid user ID is required"),
-  body("bookId").isInt({ gt: 0 }).withMessage("Valid book ID is required"),
-  body("borrowDate").isISO8601().withMessage("Valid borrow date is required"),
-  body("dueDate").isISO8601().withMessage("Valid due date is required"),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  },
-];
-
-// Validation for creating and updating reservation
-const validateReservation = [
-  body("user_id")
-    .isInt({ min: 1 })
-    .withMessage("User ID must be a positive integer")
-    .notEmpty()
-    .withMessage("User ID is required"),
-  body("book_id")
-    .isInt({ min: 1 })
-    .withMessage("Book ID must be a positive integer")
-    .notEmpty()
-    .withMessage("Book ID is required"),
-  body("status")
-    .optional()
-    .isIn(["waiting", "notified", "canceled"])
-    .withMessage("Invalid status"),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  },
-];
-
 // Validation for creating and updating Fine records
 const validateFine = [
   body("user_id")
@@ -277,7 +236,5 @@ module.exports = {
   validateBookField,
   validateNewAuthor,
   validatePrevAuthor,
-  validateBorrowingRecord,
-  validateReservation,
   validateFine,
 };

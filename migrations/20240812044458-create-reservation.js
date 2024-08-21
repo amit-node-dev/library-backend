@@ -28,8 +28,8 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("waiting", "notified", "canceled"),
-        defaultValue: "waiting",
+        type: Sequelize.ENUM("none", "waiting", "notified", "canceled"),
+        defaultValue: "none",
       },
       createdAt: {
         allowNull: false,

@@ -69,7 +69,7 @@ app.use(`${process.env.BASE_URL}/borrowing_records`, borrowingRecordRoutes);
 // RESERVATION ROUTES
 app.use(`${process.env.BASE_URL}/reservations`, reservationRoutes);
 
-// RESERVATION ROUTES
+// FINE ROUTES
 app.use(`${process.env.BASE_URL}/fines`, fineRoutes);
 
 // AUTHENTICATE SEQUELIZE AND ESTABLISH CONNECTION WITH DB

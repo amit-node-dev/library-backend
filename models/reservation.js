@@ -49,11 +49,11 @@ module.exports = (sequelize) => {
         },
       },
       status: {
-        type: DataTypes.ENUM("waiting", "notified", "canceled"),
-        defaultValue: "waiting",
+        type: DataTypes.ENUM("none", "waiting", "notified", "canceled"),
+        defaultValue: "none",
         validate: {
           isIn: {
-            args: [["waiting", "notified", "canceled"]],
+            args: [["none", "waiting", "notified", "canceled"]],
             msg: "Status must be one of 'waiting', 'notified', or 'canceled'",
           },
         },

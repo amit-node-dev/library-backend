@@ -13,22 +13,22 @@ const createReservation = async (req, res) => {
   try {
     logger.info("reservationControllers --> createReservation --> reached");
 
-    const { userId, bookId } = req.body;
+    const { userId, bookId, reservationDate, status } = req.body;
 
     const book = await Book.findByPk(bookId);
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 400);
     }
 
-    const newReservation = await Reservation.create({ userId, bookId });
+    const reservation = await Reservation.create({
+      user_id: userId,
+      book_id: bookId,
+      reservation_date: reservationDate,
+      status,
+    });
 
     logger.info("reservationControllers --> createReservation --> ended");
-    return successResponse(
-      res,
-      message.COMMON.ADDED_SUCCESS,
-      newReservation,
-      201
-    );
+    return successResponse(res, message.COMMON.ADDED_SUCCESS, reservation, 201);
   } catch (error) {
     logger.error(
       "reservationControllers --> createReservation --> error",
@@ -48,15 +48,35 @@ const getAllReservations = async (req, res) => {
   try {
     logger.info("reservationControllers --> getAllReservations --> reached");
 
-    const reservations = await Reservation.findAll({
-      include: ["user", "book"],
+    const { page = 1, pageSize = 5, status } = req.query;
+    const offset = (page - 1) * pageSize;
+    const limit = parseInt(pageSize, 10);
+
+    // Create the where clause based on the status query parameter
+    const whereClause = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const { count, rows } = await BorrowingRecord.findAndCountAll({
+      where: whereClause,
+      offset,
+      limit,
+      include: ["users", "books"],
     });
+
+    const responseData = {
+      reservations: rows,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
 
     logger.info("reservationControllers --> getAllReservations --> ended");
     return successResponse(
       res,
       message.COMMON.LIST_FETCH_SUCCESS,
-      reservations,
+      responseData,
       200
     );
   } catch (error) {

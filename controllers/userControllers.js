@@ -28,28 +28,33 @@ const createUser = async (req, res) => {
       mobileNumber,
     } = req.body;
 
-    let ageInt = parseInt(age);
-    let findUserByMobileNumber;
-    let responseData;
+    const ageInt = parseInt(age, 10);
 
-    // Ensure the mobile number includes the country code
+    // Ensure mobile number includes the country code
+    let formattedMobileNumber = mobileNumber;
     if (mobileNumber && !mobileNumber.startsWith("+91")) {
-      mobileNumber = `+91${mobileNumber}`;
+      formattedMobileNumber = `+91${mobileNumber}`;
+    }
 
-      findUserByMobileNumber = await User.findOne({
-        where: { mobileNumber },
-      });
+    // Check if a user with the same mobile number exists
+    let user = await User.findOne({
+      where: { mobileNumber: formattedMobileNumber },
+    });
 
-      if (findUserByMobileNumber) {
-        findUserByMobileNumber.firstname = firstname;
-        findUserByMobileNumber.lastname = lastname;
-        findUserByMobileNumber.email = email;
-        findUserByMobileNumber.password = password;
+    if (user) {
+      user.firstname = firstname;
+      user.lastname = lastname;
+      user.email = email;
+      user.password = password;
+      user.age = ageInt;
+      user.country = country;
+      user.state = state;
+      user.city = city;
+      user.role_id = role;
 
-        responseData = await findUserByMobileNumber.save();
-      }
+      user = await user.save();
     } else {
-      responseData = await User.create({
+      user = await User.create({
         firstname,
         lastname,
         email,
@@ -58,18 +63,13 @@ const createUser = async (req, res) => {
         country,
         state,
         city,
-        role,
-        mobileNumber,
+        role_id: role,
+        mobileNumber: formattedMobileNumber,
       });
     }
 
     logger.info("userControllers --> createUser --> ended");
-    return successResponse(
-      res,
-      message.COMMON.ADDED_SUCCESS,
-      responseData,
-      201
-    );
+    return successResponse(res, message.COMMON.ADDED_SUCCESS, user, 201);
   } catch (error) {
     logger.error("userControllers --> createUser --> error", error);
     return errorResponse(

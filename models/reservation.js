@@ -49,12 +49,12 @@ module.exports = (sequelize) => {
         },
       },
       status: {
-        type: DataTypes.ENUM("none", "waiting", "notified", "canceled"),
+        type: DataTypes.ENUM("none", "reserved", "unreserved"),
         defaultValue: "none",
         validate: {
           isIn: {
-            args: [["none", "waiting", "notified", "canceled"]],
-            msg: "Status must be one of 'waiting', 'notified', or 'canceled'",
+            args: [["none", "reserved", "unreserved"]],
+            msg: "Status must be one of 'reserved', 'unreserved'",
           },
         },
       },
@@ -62,7 +62,6 @@ module.exports = (sequelize) => {
     {
       sequelize,
       modelName: "Reservation",
-      timestamps: false,
     }
   );
 

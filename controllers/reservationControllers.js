@@ -43,6 +43,59 @@ const createReservation = async (req, res) => {
   }
 };
 
+// GET RESERVED BOOK STATUS
+const getReservedBookStatus = async (req, res) => {
+  try {
+    logger.info("reservationControllers --> getReservedBookStatus --> reached");
+
+    const { userId, bookId } = req.body;
+
+    const reservation = await Reservation.findOne({
+      where: {
+        user_id: userId,
+        book_id: bookId,
+      },
+      order: [["id", "DESC"]],
+    });
+
+    if (reservation === null) {
+      return successResponse(res, message.COMMON.FETCH_SUCCESS, null, 200);
+    }
+
+    // Check if the book is still reserved
+    const reservationDate = reservation.reservation_date
+      ? new Date(reservation.reservation_date)
+      : null;
+    const status = reservation.status;
+    const reservationId = reservation.id;
+
+    const responseData = {
+      reservationDate,
+      status,
+      reservationId,
+    };
+
+    logger.info("reservationControllers --> getReservedBookStatus --> ended");
+    return successResponse(
+      res,
+      message.COMMON.FETCH_SUCCESS,
+      responseData,
+      200
+    );
+  } catch (error) {
+    logger.error(
+      "reservationControllers --> getReservedBookStatus --> error",
+      error
+    );
+    return errorResponse(
+      res,
+      message.SERVER.INTERNAL_SERVER_ERROR,
+      error.message,
+      500
+    );
+  }
+};
+
 // Get all reservations
 const getAllReservations = async (req, res) => {
   try {
@@ -58,7 +111,7 @@ const getAllReservations = async (req, res) => {
       whereClause.status = status;
     }
 
-    const { count, rows } = await BorrowingRecord.findAndCountAll({
+    const { count, rows } = await Reservation.findAndCountAll({
       where: whereClause,
       offset,
       limit,
@@ -160,40 +213,10 @@ const updateReservation = async (req, res) => {
   }
 };
 
-// Delete reservation
-const deleteReservation = async (req, res) => {
-  try {
-    logger.info("reservationControllers --> deleteReservation --> reached");
-
-    const { id } = req.params;
-
-    const reservation = await Reservation.findByPk(id);
-    if (!reservation) {
-      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
-    }
-
-    await reservation.destroy();
-
-    logger.info("reservationControllers --> deleteReservation --> ended");
-    return successResponse(res, message.COMMON.FETCH_SUCCESS, reservation, 200);
-  } catch (error) {
-    logger.error(
-      "reservationControllers --> deleteReservation --> error",
-      error
-    );
-    return errorResponse(
-      res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
-      error.message,
-      500
-    );
-  }
-};
-
 module.exports = {
   createReservation,
+  getReservedBookStatus,
   getAllReservations,
   getReservationById,
   updateReservation,
-  deleteReservation,
 };

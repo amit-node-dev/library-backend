@@ -12,10 +12,6 @@ module.exports = (sequelize) => {
         foreignKey: "book_id",
         as: "books",
       });
-      BorrowingRecord.hasMany(models.Fine, {
-        foreignKey: "record_id",
-        as: "fines",
-      });
     }
   }
 
@@ -66,14 +62,6 @@ module.exports = (sequelize) => {
         type: DataTypes.DATE,
         validate: {
           isDate: true,
-        },
-      },
-      fine_amount: {
-        type: DataTypes.DECIMAL(10, 2),
-        defaultValue: 0.0,
-        validate: {
-          isDecimal: true,
-          min: 0,
         },
       },
       status: {

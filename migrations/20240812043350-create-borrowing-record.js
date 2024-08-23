@@ -34,10 +34,6 @@ module.exports = {
       return_date: {
         type: Sequelize.DATE,
       },
-      fine_amount: {
-        type: Sequelize.DECIMAL(10, 2),
-        defaultValue: 0.0,
-      },
       status: {
         type: Sequelize.ENUM("none", "borrowed", "returned", "overdue"),
         defaultValue: "none",

@@ -22,7 +22,6 @@ module.exports = (sequelize) => {
         as: "role",
       });
       User.hasMany(models.Feedback, { foreignKey: "user_id", as: "feedbacks" });
-      User.hasMany(models.Fine, { foreignKey: "user_id", as: "fines" });
       User.hasMany(models.AuditLog, { foreignKey: "user_id", as: "auditLogs" });
     }
   }

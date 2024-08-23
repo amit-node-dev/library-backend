@@ -19,7 +19,6 @@ const db = {
   Category,
   Reservation,
   BorrowingRecord,
-  Notification,
   BookAuthor,
   sequelize,
   Sequelize,
@@ -29,10 +28,9 @@ const db = {
 User.associate({
   BorrowingRecord,
   Reservation,
-  Notification,
   Role,
 });
-BorrowingRecord.associate({ User, Book, Fine });
+BorrowingRecord.associate({ User, Book });
 Reservation.associate({ User, Book });
 Role.associate({ User });
 Book.associate({ Author, BookAuthor, Category, BorrowingRecord, Reservation });

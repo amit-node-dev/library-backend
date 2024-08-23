@@ -185,7 +185,7 @@ const verifyOTP = async (req, res) => {
       lastname: user.lastname,
       email: user.email,
       mobileNumber: user.mobileNumber,
-      roleId: user.roleId,
+      roleId: user.role_id,
     };
 
     return successResponse(res, message.AUTH.OTP_VERIFIED, userData, 200);

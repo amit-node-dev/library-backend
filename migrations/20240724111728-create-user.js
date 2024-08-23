@@ -43,7 +43,7 @@ module.exports = {
           model: "Roles",
           key: "id",
         },
-        allowNull: false,
+        allowNull: true,
         defaultValue: 3,
       },
       country: {

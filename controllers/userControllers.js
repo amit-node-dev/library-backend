@@ -32,27 +32,32 @@ const createUser = async (req, res) => {
 
     // Ensure mobile number includes the country code
     let formattedMobileNumber = mobileNumber;
-    if (mobileNumber && !mobileNumber.startsWith("+91")) {
-      formattedMobileNumber = `+91${mobileNumber}`;
-    }
+    let user;
+    if (mobileNumber) {
+      if (!mobileNumber.startsWith("+91")) {
+        formattedMobileNumber = `+91${mobileNumber}`;
+      } else {
+        formattedMobileNumber = mobileNumber;
+      }
 
-    // Check if a user with the same mobile number exists
-    let user = await User.findOne({
-      where: { mobileNumber: formattedMobileNumber },
-    });
+      // Check if a user with the same mobile number exists
+      user = await User.findOne({
+        where: { mobileNumber: formattedMobileNumber },
+      });
 
-    if (user) {
-      user.firstname = firstname;
-      user.lastname = lastname;
-      user.email = email;
-      user.password = password;
-      user.age = ageInt;
-      user.country = country;
-      user.state = state;
-      user.city = city;
-      user.role_id = role;
+      if (user) {
+        user.firstname = firstname;
+        user.lastname = lastname;
+        user.email = email;
+        user.password = password;
+        user.age = ageInt;
+        user.country = country;
+        user.state = state;
+        user.city = city;
+        user.role_id = role;
 
-      user = await user.save();
+        user = await user.save();
+      }
     } else {
       user = await User.create({
         firstname,

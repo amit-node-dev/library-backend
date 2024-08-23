@@ -13,16 +13,10 @@ module.exports = (sequelize) => {
         foreignKey: "user_id",
         as: "reservations",
       });
-      User.hasMany(models.Notification, {
-        foreignKey: "user_id",
-        as: "notifications",
-      });
       User.belongsTo(models.Role, {
         foreignKey: "role_id",
         as: "role",
       });
-      User.hasMany(models.Feedback, { foreignKey: "user_id", as: "feedbacks" });
-      User.hasMany(models.AuditLog, { foreignKey: "user_id", as: "auditLogs" });
     }
   }
 

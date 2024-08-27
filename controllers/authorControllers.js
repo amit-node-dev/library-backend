@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+
 // USER MODEL
 const { Author } = require("../models");
 
@@ -40,12 +42,24 @@ const getAllAuthorsList = async (req, res) => {
     logger.info("authorControllers --> getAllAuthorsList --> reached");
 
     let responseData;
-    const { page, pageSize } = req.query;
+    const { page, pageSize, search = "" } = req.query;
     if (page && pageSize) {
       let offset = (page - 1) * pageSize;
       let limit = parseInt(pageSize, 10);
 
+      // Building the where condition
+      const whereCondition = {};
+
+      if (search) {
+        whereCondition[Op.or] = [
+          { firstname: { [Op.like]: `%${search}%` } },
+          { lastname: { [Op.like]: `%${search}%` } },
+          { email: { [Op.like]: `%${search}%` } },
+        ];
+      }
+
       let result = await Author.findAndCountAll({
+        where: whereCondition,
         offset,
         limit,
       });

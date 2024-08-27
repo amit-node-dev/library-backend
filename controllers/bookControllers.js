@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+
 // BOOK MODEL
 const { Book, Author, Category, BookAuthor, sequelize } = require("../models");
 
@@ -27,8 +29,6 @@ const addNewBooks = async (req, res) => {
       available_copies,
       location,
     } = req.body;
-
-    console.log("DATA ", req.body);
 
     const newBookData = await Book.create(
       {
@@ -66,11 +66,38 @@ const getAllBooksList = async (req, res) => {
   try {
     logger.info("bookControllers --> getAllBooksList --> reached");
 
-    const { page = 1, pageSize = 5 } = req.query;
+    const {
+      page = 1,
+      pageSize = 5,
+      search = "",
+      category = "",
+      author = "",
+    } = req.query;
     const offset = (page - 1) * pageSize;
     const limit = parseInt(pageSize, 10);
 
+    // Building the where condition
+    const whereCondition = {};
+
+    if (search) {
+      whereCondition[Op.or] = [
+        { isbn: { [Op.like]: `%${search}%` } },
+        { bookname: { [Op.like]: `%${search}%` } },
+        { publisher: { [Op.like]: `%${search}%` } },
+        { location: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    if (category) {
+      whereCondition.category_id = category;
+    }
+
+    if (author) {
+      whereCondition.author_id = author;
+    }
+
     const { count, rows } = await Book.findAndCountAll({
+      where: whereCondition,
       offset,
       limit,
       include: [

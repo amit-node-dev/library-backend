@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { Op } = require("sequelize");
 
 // USER MODEL
 const { User, sequelize } = require("../models");
@@ -91,11 +92,27 @@ const getAllUserList = async (req, res) => {
   try {
     logger.info("userControllers --> getAllUserList --> reached");
 
-    const { page = 1, pageSize = 5 } = req.query;
+    const { page = 1, pageSize = 5, search = "", role = "" } = req.query;
     const offset = (page - 1) * pageSize;
     const limit = parseInt(pageSize, 10);
 
+    // Building the where condition
+    const whereCondition = {};
+
+    if (search) {
+      whereCondition[Op.or] = [
+        { firstname: { [Op.like]: `%${search}%` } },
+        { lastname: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    if (role) {
+      whereCondition.role_id = role;
+    }
+
     const { count, rows } = await User.findAndCountAll({
+      where: whereCondition,
       offset,
       limit,
       include: [

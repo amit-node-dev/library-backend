@@ -192,7 +192,6 @@ const updateUser = async (req, res) => {
       city,
       role,
     } = req.body;
-
     // Ensure the mobile number includes the country code
     if (mobileNumber && !mobileNumber.startsWith("+91")) {
       mobileNumber = `+91${mobileNumber}`;
@@ -220,7 +219,7 @@ const updateUser = async (req, res) => {
     user.country = country;
     user.state = state;
     user.city = city;
-    user.roleId = role;
+    user.role_id = role;
 
     await user.save();
 

@@ -7,7 +7,7 @@ module.exports = {
     const roles = await queryInterface.sequelize.query(
       `SELECT id,name from Roles;`
     );
-    const role = roles.find((role) => role.name === "customer");
+    const role = roles.find((role) => role.name === "super_admin");
 
     await queryInterface.bulkInsert(
       "Users",
@@ -16,10 +16,9 @@ module.exports = {
           firstname: "Amit",
           lastname: "Vishwakarma",
           email: "amit.vishwakarma@gmail.com",
-          password:
-            "$2y$10$CTRkjgznicnOPtqGg9xpZOyYpScCaqNRAjlcNcOCBQ2VIQInoprzG",
-          role_id: role ? role.id : 3,
-          mobileNumber: "+917001081661",
+          password: "Amit@4582",
+          role_id: role ? role.id : 1,
+          mobileNumber: "+91-7001081661",
           createdAt: new Date(),
           updatedAt: new Date(),
         },

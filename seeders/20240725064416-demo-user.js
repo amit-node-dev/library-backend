@@ -18,7 +18,7 @@ module.exports = {
           email: "amit.vishwakarma@gmail.com",
           password: "Amit@4582",
           role_id: role ? role.id : 1,
-          mobileNumber: "+91-7001081661",
+          mobileNumber: "7001081661",
           createdAt: new Date(),
           updatedAt: new Date(),
         },

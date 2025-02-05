@@ -1,8 +1,9 @@
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
+const jwt = require("jsonwebtoken");
 
 // USER MODEL
-const { User, sequelize } = require("../models");
+const { User, Role, sequelize } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -25,57 +26,57 @@ const createUser = async (req, res) => {
       country,
       state,
       city,
-      role,
       mobileNumber,
     } = req.body;
 
     const ageInt = parseInt(age, 10);
 
-    // Ensure mobile number includes the country code
-    let formattedMobileNumber = mobileNumber;
-    let user;
-    if (mobileNumber) {
-      if (!mobileNumber.startsWith("+91")) {
-        formattedMobileNumber = `+91${mobileNumber}`;
-      } else {
-        formattedMobileNumber = mobileNumber;
+    // Hash password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Check if user already exists with the given email or mobile number
+    let user = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { mobileNumber }],
+      },
+    });
+
+    if (user) {
+      // Update user details
+      user.firstname = firstname;
+      user.lastname = lastname;
+      user.email = email;
+      user.age = ageInt;
+      user.password = hashedPassword;
+      user.country = country;
+      user.state = state;
+      user.city = city;
+
+      if (password) {
+        user.password = await bcrypt.hash(password, 10);
       }
 
-      // Check if a user with the same mobile number exists
-      user = await User.findOne({
-        where: { mobileNumber: formattedMobileNumber },
-      });
+      await user.save();
 
-      if (user) {
-        user.firstname = firstname;
-        user.lastname = lastname;
-        user.email = email;
-        user.password = password;
-        user.age = ageInt;
-        user.country = country;
-        user.state = state;
-        user.city = city;
-        user.role_id = role;
-
-        user = await user.save();
-      }
-    } else {
-      user = await User.create({
-        firstname,
-        lastname,
-        email,
-        age: ageInt,
-        password,
-        country,
-        state,
-        city,
-        role_id: role,
-        mobileNumber: formattedMobileNumber,
-      });
+      logger.info("userControllers --> createUser --> updated existing user");
+      return successResponse(res, message.COMMON.UPDATE_SUCCESS, user, 200);
     }
 
+    // Create new user
+    user = await User.create({
+      firstname,
+      lastname,
+      email,
+      age: ageInt,
+      password: hashedPassword,
+      country,
+      state,
+      city,
+      mobileNumber,
+    });
+
     logger.info("userControllers --> createUser --> ended");
-    return successResponse(res, message.COMMON.ADDED_SUCCESS, user, 201);
+    return successResponse(res, message.COMMON.REGISTER_SUCCESS, user, 201);
   } catch (error) {
     logger.error("userControllers --> createUser --> error", error);
     return errorResponse(
@@ -92,8 +93,43 @@ const getAllUserList = async (req, res) => {
   try {
     logger.info("userControllers --> getAllUserList --> reached");
 
-    const { page = 1, pageSize = 5, search = "", role = "" } = req.query;
-    const offset = (page - 1) * pageSize;
+    const token =
+      req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { email } = decoded;
+
+    // Validate if User exists and is active
+    const user = await User.findOne({
+      where: { email: email },
+      include: [{ model: Role, as: "role" }],
+    });
+
+    if (!user) {
+      return errorResponse(res, "User not found or inactive.", null, 404);
+    }
+
+    // Check role-based access
+    const allowedRoles = ["super_admin", "admin", "customer"];
+    if (!allowedRoles.includes(user.role?.name)) {
+      return errorResponse(
+        res,
+        "You are not authorized to access this resource.",
+        null,
+        403
+      );
+    }
+
+    // Extract query parameters with default values
+    const {
+      page = 1,
+      pageSize = 5,
+      search = "",
+      role = "",
+      sortBy = "createdAt",
+      sortOrder = "DESC",
+    } = req.query;
+    const offset = (parseInt(page, 10) - 1) * parseInt(pageSize, 10);
     const limit = parseInt(pageSize, 10);
 
     // Building the where condition
@@ -101,9 +137,9 @@ const getAllUserList = async (req, res) => {
 
     if (search) {
       whereCondition[Op.or] = [
-        { firstname: { [Op.like]: `%${search}%` } },
-        { lastname: { [Op.like]: `%${search}%` } },
-        { email: { [Op.like]: `%${search}%` } },
+        { firstname: { [Op.iLike]: `%${search}%` } },
+        { lastname: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
       ];
     }
 
@@ -111,24 +147,27 @@ const getAllUserList = async (req, res) => {
       whereCondition.role_id = role;
     }
 
+    // Fetch users with pagination
     const { count, rows } = await User.findAndCountAll({
       where: whereCondition,
       offset,
       limit,
+      order: [[sortBy, sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC"]],
       include: [
         {
-          model: sequelize.models.Role,
+          model: Role,
           as: "role",
           attributes: ["name"],
         },
       ],
     });
 
-    let responseData = {
-      users: rows,
+    const responseData = {
+      items: rows,
       total: count,
       page: parseInt(page, 10),
-      pageSize: limit,
+      itemsPerPage: limit,
+      totalPages: Math.ceil(count / limit),
     };
 
     logger.info("userControllers --> getAllUserList --> ended");

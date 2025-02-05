@@ -1,11 +1,12 @@
 module.exports = {
   COMMON: {
-    ADDED_SUCCESS: "Added successfully",
-    UPDATE_SUCCESS: "Updated successfully",
+    REGISTER_SUCCESS: "Registered successfully.",
+    ADDED_SUCCESS: "Added successfully.",
+    UPDATE_SUCCESS: "Updated successfully.",
     DELETE_SUCCESS: "Deleted successfully",
     NOT_FOUND: "Not Found",
-    FETCH_SUCCESS: "Details fetched successfully",
-    LIST_FETCH_SUCCESS: "list fetched successfully",
+    FETCH_SUCCESS: "Fetch Detail Successfully",
+    LIST_FETCH_SUCCESS: "List fetched successfully",
     CANNOT_DELETE_SELF: "Cannot delete itself",
   },
   AUTH: {

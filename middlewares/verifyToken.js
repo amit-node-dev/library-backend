@@ -24,11 +24,18 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
+    req.id = decoded.id;
+    req.email = decoded.email;
+
     next();
   } catch (error) {
-    logger.error("Error in verify token ::: ", error);
-    return errorResponse(res, message.AUTH.INVALID_TOKEN, error, 400);
+    if (error.name === "TokenExpiredError") {
+      logger.error("Token has expired ::: ", error);
+      return errorResponse(res, message.TOKEN.TOKEN_EXPIRED, error, 401);
+    } else {
+      logger.error("Error in verifying token ::: ", error);
+      return errorResponse(res, message.TOKEN.INVALID_TOKEN, error, 403);
+    }
   }
 };
 

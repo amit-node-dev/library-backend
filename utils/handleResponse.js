@@ -1,6 +1,6 @@
 const successResponse = (res, message, data, statusCode) => {
   res.status(statusCode).json({
-    statusType: "SUCCESS",
+    statusType: true,
     message,
     data,
   });
@@ -8,7 +8,7 @@ const successResponse = (res, message, data, statusCode) => {
 
 const errorResponse = (res, message, data, statusCode) => {
   res.status(statusCode).json({
-    statusType: "ERROR / FAILED",
+    statusType: false,
     message,
     data,
   });

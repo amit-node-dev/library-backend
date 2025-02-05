@@ -14,14 +14,14 @@ const { createUser } = require("../controllers/userControllers");
 
 const router = express.Router();
 
+router.post("/register-user", validateNewUser, createUser);
+
 router.post("/login", validateAuth, loginUser);
 
 router.post("/logout", logoutUser);
 
-router.post("/register_user", validateNewUser, createUser);
+router.post("/send-otp", sentOTP);
 
-router.post("/send_otp", sentOTP);
-
-router.post("/verify_otp", verifyOTP);
+router.post("/verify-otp", verifyOTP);
 
 module.exports = router;

@@ -28,11 +28,11 @@ const validateAuth = [
 ];
 
 const validateNewUser = [
-  body("firstname")
-    .isAlpha()
-    .withMessage("Firstname must contain only letters"),
-  body("lastname").isAlpha().withMessage("Lastname must contain only letters"),
+  body("firstname").notEmpty().withMessage("Firstname is required"),
+  body("lastname").notEmpty().withMessage("Lastname is required"),
   body("email")
+    .notEmpty()
+    .withMessage("Email is required")
     .isEmail()
     .withMessage("Email is invalid")
     .custom(async (email) => {
@@ -42,8 +42,11 @@ const validateNewUser = [
       }
     }),
   body("password")
+    .notEmpty()
+    .withMessage("Password is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
+  body("mobileNumber").notEmpty().withMessage("Mobile number is required"),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -60,11 +63,13 @@ const validateNewUser = [
 ];
 
 const validatePrevUser = [
-  body("firstname")
-    .isAlpha()
-    .withMessage("Firstname must contain only letters"),
-  body("lastname").isAlpha().withMessage("Lastname must contain only letters"),
-  body("email").isEmail().withMessage("Invalid email format"),
+  body("firstname").notEmpty().withMessage("Firstname is required"),
+  body("lastname").notEmpty().withMessage("Lastname is required"),
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
   body("password")
     .optional()
     .isLength({ min: 8 })

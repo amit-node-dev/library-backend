@@ -6,7 +6,10 @@ const twilio = require("twilio");
 const { User, Role } = require("../models");
 
 // CORE-CONFIG MODULES
-const generateToken = require("../core-configurations/jwt-config/generateToken");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../core-configurations/jwt-config/generateToken");
 const logger = require("../core-configurations/logger-config/logger");
 
 // MIDDLEWARE
@@ -39,17 +42,18 @@ const loginUser = async (req, res) => {
       return errorResponse(res, message.AUTH.INVALID_PASSWORD, null, 401);
     }
 
-    // GENERATE TOKEN
-    const tokenData = generateToken(user.id);
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id, user.email);
+    const refreshToken = generateRefreshToken(user.id, user.email);
 
     const userData = {
-      token: tokenData,
+      userId: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
       roleId: user.role_id,
-      userId: user.id,
-      user,
+      accessToken,
+      refreshToken,
     };
 
     logger.info("authControllers --> loginUser --> ended");
@@ -113,23 +117,23 @@ const sentOTP = async (req, res) => {
     }
 
     // Fetch the role IDs to associate with users
-    const roles = await Role.findOne({ where: { name: "customer" } });
+    const role = await Role.findOne({ where: { name: "customer" } });
+    if (!role) {
+      return errorResponse(res, "Customer role not found", null, 500);
+    }
 
-    const demoUserData = {
+    // Create a new user with default values
+    user = await User.create({
       firstname: "John",
       lastname: "Dcruz",
-      email: "john@gmail.com",
+      email: "john.dcruz@gmail.com",
       password: "$2y$10$CTRkjgznicnOPtqGg9xpZOyYpScCaqNRAjlcNcOCBQ2VIQInoprzG",
-      roleId: roles.id,
-      mobileNumber: mobileNumber,
+      roleId: role.id,
+      age: 28,
+      mobileNumber,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
-
-    // If user doesn't exist, create a new user
-    if (!user) {
-      user = await User.create(demoUserData);
-    }
+    });
 
     await client.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID)
@@ -162,33 +166,21 @@ const verifyOTP = async (req, res) => {
       return errorResponse(res, message.AUTH.MISSING_OTP, null, 400);
     }
 
-    // Ensure the mobile number includes the country code
-    if (!mobileNumber.startsWith("+91")) {
-      mobileNumber = `+91${mobileNumber}`;
+    // Verify OTP using Twilio
+    const verificationCheck = await client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verificationChecks.create({ to: mobileNumber, code: otp });
+
+    if (verificationCheck.status !== "approved") {
+      return errorResponse(res, message.AUTH.INVALID_OTP, null, 400);
     }
 
     const user = await User.findOne({ where: { mobileNumber } });
-
     if (!user) {
       return errorResponse(res, message.AUTH.INVALID_USER, null, 404);
     }
 
-    logger.info("authControllers --> verifyOTP --> OTP verified successfully");
-
-    // Generate token for authenticated session
-    const tokenData = generateToken(user.id);
-
-    const userData = {
-      token: tokenData,
-      userId: user.id,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email,
-      mobileNumber: user.mobileNumber,
-      roleId: user.role_id,
-    };
-
-    return successResponse(res, message.AUTH.OTP_VERIFIED, userData, 200);
+    return successResponse(res, message.AUTH.OTP_VERIFIED, user, 200);
   } catch (error) {
     logger.error("authControllers --> verifyOTP --> error", error);
     return errorResponse(

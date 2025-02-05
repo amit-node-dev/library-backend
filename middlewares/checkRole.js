@@ -12,7 +12,7 @@ const logger = require("../core-configurations/logger-config/logger");
 const checkRole = (roles) => {
   return async (req, res, next) => {
     try {
-      const user = await User.findByPk(req.userId, {
+      const user = await User.findByPk(req.id, {
         include: {
           model: Role,
           as: "role",

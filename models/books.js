@@ -92,6 +92,10 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
       },
+      points_required: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
     },
     {
       sequelize,

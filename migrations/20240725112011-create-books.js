@@ -58,6 +58,10 @@ module.exports = {
       location: {
         type: Sequelize.STRING(50),
       },
+      points_required: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

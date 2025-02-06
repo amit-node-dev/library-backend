@@ -19,7 +19,7 @@ const router = express.Router();
 
 // Private routes (require authentication)
 router.post(
-  "/add_books",
+  "/add-book",
   checkRole(["super_admin"]),
   validateBookField,
   addNewBooks

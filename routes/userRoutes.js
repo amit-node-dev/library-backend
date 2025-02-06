@@ -7,6 +7,7 @@ const {
   getUserById,
   updateUser,
   deleteUser,
+  getCurrentUserPoints,
 } = require("../controllers/userControllers");
 
 //  TO VALIDATE USER DATA TYPES WHILE CREATING NEW USER
@@ -28,6 +29,8 @@ router.post(
 );
 
 router.get("/", checkRole(permission), getAllUserList);
+
+router.post("/get-points", getCurrentUserPoints);
 
 router.get("/:id", checkRole(permission), getUserById);
 

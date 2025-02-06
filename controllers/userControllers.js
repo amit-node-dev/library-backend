@@ -31,6 +31,8 @@ const createUser = async (req, res) => {
 
     const ageInt = parseInt(age, 10);
 
+    const points = 100;
+
     // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -51,6 +53,7 @@ const createUser = async (req, res) => {
       user.country = country;
       user.state = state;
       user.city = city;
+      user.points = points;
 
       if (password) {
         user.password = await bcrypt.hash(password, 10);
@@ -73,6 +76,7 @@ const createUser = async (req, res) => {
       state,
       city,
       mobileNumber,
+      points,
     });
 
     logger.info("userControllers --> createUser --> ended");
@@ -301,10 +305,42 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// GET CURRENT USER POINTS
+const getCurrentUserPoints = async (req, res) => {
+  try {
+    logger.info("userControllers --> getCurrentUserPoints --> reached");
+
+    const { email, userId } = req.body;
+    const user = await User.findOne({
+      where: { email, id: userId },
+    });
+    if (!user) {
+      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
+    }
+
+    logger.info("userControllers --> getCurrentUserPoints --> ended");
+    return successResponse(
+      res,
+      message.COMMON.FETCH_SUCCESS,
+      { points: user.points },
+      200
+    );
+  } catch (error) {
+    logger.error("userControllers --> getCurrentUserPoints --> error", error);
+    return errorResponse(
+      res,
+      message.SERVER.INTERNAL_SERVER_ERROR,
+      error.message,
+      500
+    );
+  }
+};
+
 module.exports = {
   createUser,
   getAllUserList,
   getUserById,
   updateUser,
   deleteUser,
+  getCurrentUserPoints,
 };

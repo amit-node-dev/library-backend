@@ -26,8 +26,8 @@ const addNewBooks = async (req, res) => {
       publisher,
       publicationYear,
       totalCopies,
-      available_copies,
       location,
+      pointsRequired,
     } = req.body;
 
     const newBookData = await Book.create(
@@ -44,6 +44,7 @@ const addNewBooks = async (req, res) => {
         location,
         category_id: categoryId,
         author_id: authorId,
+        pointsRequired,
       },
       { include: [{ model: Category, as: "category" }] }
     );
@@ -185,8 +186,8 @@ const updateBooks = async (req, res) => {
       publisher,
       publicationYear,
       totalCopies,
-      available_copies,
       location,
+      pointsRequired,
     } = req.body;
 
     const book = await Book.findByPk(id);
@@ -204,10 +205,10 @@ const updateBooks = async (req, res) => {
       publisher,
       publication_year: publicationYear,
       total_copies: parseInt(totalCopies),
-      available_copies,
       location,
       category_id: categoryId,
       author_id: authorId,
+      points_required: parseInt(pointsRequired),
     });
 
     logger.info("bookControllers --> updateBooks --> ended");

@@ -1,5 +1,5 @@
 // MODELS
-const { BorrowingRecord, Book } = require("../models");
+const { BorrowingRecord, Book, sequelize } = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -7,52 +7,6 @@ const logger = require("../core-configurations/logger-config/logger");
 // UTILS
 const { successResponse, errorResponse } = require("../utils/handleResponse");
 const message = require("../utils/commonMessages");
-
-// Add borrowing record of books
-const addBorrowingRecord = async (req, res) => {
-  try {
-    logger.info(
-      "borrowingRecordControllers --> addBorrowingRecord --> reached"
-    );
-
-    const { userId, bookId, borrowDate, dueDate, status } = req.body;
-
-    const book = await Book.findByPk(bookId);
-    if (!book || book.available_copies <= 0) {
-      return errorResponse(res, message.COMMON.NOT_FOUND, null, 400);
-    }
-
-    const responseData = await BorrowingRecord.create({
-      user_id: userId,
-      book_id: bookId,
-      borrow_date: borrowDate,
-      due_date: dueDate,
-      status,
-    });
-
-    book.available_copies -= 1;
-    await book.save();
-
-    logger.info("borrowingRecordControllers --> addBorrowingRecord --> ended");
-    return successResponse(
-      res,
-      "You have been borrowed successfully",
-      responseData,
-      201
-    );
-  } catch (error) {
-    logger.error(
-      "borrowingRecordControllers --> addBorrowingRecord --> error",
-      error
-    );
-    return errorResponse(
-      res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
-      error.message,
-      500
-    );
-  }
-};
 
 // GET BORROW BOOK RECORD STATUS
 const getBorrowBookRecordStatus = async (req, res) => {
@@ -63,33 +17,36 @@ const getBorrowBookRecordStatus = async (req, res) => {
 
     const { userId, bookId } = req.body;
 
+    // Fetch the book details
+    const book = await Book.findByPk(bookId);
+
+    if (!book) {
+      return errorResponse(res, "Book not found", null, 404);
+    }
+
+    // Check if book is out of stock
+    if (book.available_copies <= 0) {
+      return successResponse(res, "Out of Stock", null, 200);
+    }
+
+    // Fetch the most recent borrowing record for the given user & book
     const borrowRecord = await BorrowingRecord.findOne({
-      where: {
-        user_id: userId,
-        book_id: bookId,
-      },
+      where: { user_id: userId, book_id: bookId },
       order: [["id", "DESC"]],
     });
 
-    if (borrowRecord === null) {
-      return successResponse(res, message.COMMON.FETCH_SUCCESS, null, 200);
+    // If no borrowing record exists for this user & book
+    if (!borrowRecord) {
+      return successResponse(res, "No borrowing record found", null, 200);
     }
 
-    // Check if the book is still borrowed
-    const borrowDate = new Date(borrowRecord.borrow_date);
-    const dueDate = new Date(borrowRecord.due_date);
-    const returnDate = borrowRecord.return_date
-      ? new Date(borrowRecord.return_date)
-      : null;
-    const status = borrowRecord.status;
-    const recordId = borrowRecord.id;
-
+    // Extract relevant details
     const responseData = {
-      borrowDate,
-      dueDate,
-      returnDate,
-      status,
-      recordId,
+      recordId: borrowRecord.id,
+      borrowDate: borrowRecord.borrow_date,
+      dueDate: borrowRecord.due_date,
+      returnDate: borrowRecord.return_date || null,
+      status: borrowRecord.status,
     };
 
     logger.info(
@@ -115,6 +72,72 @@ const getBorrowBookRecordStatus = async (req, res) => {
   }
 };
 
+// Add borrowing record of books
+const addBorrowingRecord = async (req, res) => {
+  const transaction = await sequelize.transaction();
+  try {
+    logger.info(
+      "borrowingRecordControllers --> addBorrowingRecord --> reached"
+    );
+
+    const { userId, bookId, borrowDate, dueDate, status } = req.body;
+
+    // Fetch the book details
+    const book = await Book.findByPk(bookId, { transaction });
+    if (!book) {
+      await transaction.rollback();
+      return errorResponse(
+        res,
+        message.COMMON.NOT_FOUND,
+        "Book not found",
+        404
+      );
+    }
+
+    if (book.available_copies <= 0) {
+      await transaction.rollback();
+      return errorResponse(res, "No copies available for borrowing", null, 400);
+    }
+
+    // Create borrowing record
+    const borrowRecord = await BorrowingRecord.create(
+      {
+        user_id: userId,
+        book_id: bookId,
+        borrow_date: borrowDate,
+        due_date: dueDate,
+        status,
+      },
+      { transaction }
+    );
+
+    // Update book availability
+    book.available_copies -= 1;
+    await book.save({ transaction });
+
+    await transaction.commit();
+
+    logger.info("borrowingRecordControllers --> addBorrowingRecord --> ended");
+    return successResponse(
+      res,
+      "Book borrowed successfully",
+      borrowRecord,
+      201
+    );
+  } catch (error) {
+    logger.error(
+      "borrowingRecordControllers --> addBorrowingRecord --> error",
+      error
+    );
+    return errorResponse(
+      res,
+      message.SERVER.INTERNAL_SERVER_ERROR,
+      error.message,
+      500
+    );
+  }
+};
+
 // Return the borrowing record ofbook
 const returnBorrowingRecord = async (req, res) => {
   try {
@@ -122,40 +145,53 @@ const returnBorrowingRecord = async (req, res) => {
       "borrowingRecordControllers --> returnBorrowingRecord --> reached"
     );
 
-    const { recordId, userId, bookId, returnDate, fineAmount, status } =
-      req.body;
+    const { recordId, userId, bookId, returnDate, status } = req.body;
 
+    // Fetch the borrowing record
     const record = await BorrowingRecord.findOne({
-      where: {
-        user_id: userId,
-        book_id: bookId,
-        id: recordId,
-      },
+      where: { id: recordId, user_id: userId, book_id: bookId },
     });
 
     if (!record) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
+    // Fetch the book details
     const book = await Book.findByPk(bookId);
+    if (!book) {
+      return errorResponse(res, "Book not found", null, 404);
+    }
 
-    if (returnDate) {
+    const dueDate = new Date(record.due_date);
+    const returnDateObj = new Date(returnDate);
+
+    // Check if return date is past due date
+    let warningMessage = null;
+    if (returnDateObj > dueDate) {
+      warningMessage = "Warning: The return date exceeds the due date.";
+    }
+
+    // Update book's available copies only if it's the first time returning
+    if (!record.return_date) {
       book.available_copies += 1;
       await book.save();
-
-      record.return_date = returnDate;
-      record.status = status;
     }
 
-    if (fineAmount !== undefined && fineAmount !== null && !isNaN(fineAmount)) {
-      record.fine_amount = fineAmount;
-    }
+    // Update borrowing record details
+    record.return_date = new Date(returnDate);
+    record.status = status;
+
     await record.save();
 
     logger.info(
       "borrowingRecordControllers --> returnBorrowingRecord --> ended"
     );
-    return successResponse(res, "Returned Successfully", record, 201);
+    return successResponse(
+      res,
+      warningMessage || "Returned Successfully",
+      { record, warning: warningMessage },
+      200
+    );
   } catch (error) {
     logger.error(
       "borrowingRecordControllers --> returnBorrowingRecord --> error",
@@ -174,7 +210,7 @@ const returnBorrowingRecord = async (req, res) => {
 const getAllBorrowingRecords = async (req, res) => {
   try {
     logger.info(
-      "borrowingRecordControllers --> createBorrowingRecord --> reached"
+      "borrowingRecordControllers --> getAllBorrowingRecords --> reached"
     );
 
     const { page = 1, pageSize = 5, status } = req.query;
@@ -191,18 +227,20 @@ const getAllBorrowingRecords = async (req, res) => {
       where: whereClause,
       offset,
       limit,
+      order: [["createdAt", "DESC"]],
       include: ["users", "books"],
     });
 
     const responseData = {
-      borrowRecords: rows,
-      total: count,
-      page: parseInt(page, 10),
+      items: rows,
+      totalCount: count,
+      page: parseInt(page),
       pageSize: limit,
+      itemsPerPage: Math.ceil(count / limit),
     };
 
     logger.info(
-      "borrowingRecordControllers --> createBorrowingRecord --> ended"
+      "borrowingRecordControllers --> getAllBorrowingRecords --> ended"
     );
     return successResponse(
       res,
@@ -212,7 +250,7 @@ const getAllBorrowingRecords = async (req, res) => {
     );
   } catch (error) {
     logger.error(
-      "borrowingRecordControllers --> createBorrowingRecord --> error",
+      "borrowingRecordControllers --> getAllBorrowingRecords --> error",
       error
     );
     return errorResponse(

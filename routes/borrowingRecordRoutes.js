@@ -12,10 +12,10 @@ const {
   deleteBorrowingRecord,
 } = require("../controllers/borrowingRecordControllers");
 
-router.post("/add_borrow_records", addBorrowingRecord);
-router.post("/get_borrow_status", getBorrowBookRecordStatus);
+router.post("/add-borrow-record", addBorrowingRecord);
+router.post("/get-borrow-status", getBorrowBookRecordStatus);
 router.get("/:id", getBorrowingRecordById);
-router.post("/return_borrow_records", returnBorrowingRecord);
+router.post("/return-borrow-record", returnBorrowingRecord);
 router.get("/", getAllBorrowingRecords);
 router.put("/:id", updateBorrowingRecord);
 router.delete("/:id", deleteBorrowingRecord);

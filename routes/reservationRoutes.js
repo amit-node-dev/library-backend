@@ -10,8 +10,8 @@ const {
   updateReservation,
 } = require("../controllers/reservationControllers");
 
-router.post("/add_reservations", createReservation);
-router.post("/get_reservation_status", getReservedBookStatus);
+router.post("/add-reservations", createReservation);
+router.post("/get-reservation-status", getReservedBookStatus);
 router.get("/", getAllReservations);
 router.get("/:id", getReservationById);
 router.put("/:id", updateReservation);

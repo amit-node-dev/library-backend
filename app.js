@@ -63,7 +63,7 @@ app.use(`${process.env.BASE_URL}/authors`, authorRoutes);
 app.use(`${process.env.BASE_URL}/categories`, categoryRoutes);
 
 // BORROWING RECORDS ROUTES
-app.use(`${process.env.BASE_URL}/borrowing_records`, borrowingRecordRoutes);
+app.use(`${process.env.BASE_URL}/borrow-records`, borrowingRecordRoutes);
 
 // RESERVATION ROUTES
 app.use(`${process.env.BASE_URL}/reservations`, reservationRoutes);

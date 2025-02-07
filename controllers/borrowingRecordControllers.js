@@ -1,5 +1,14 @@
+const jwt = require("jsonwebtoken");
+
 // MODELS
-const { BorrowingRecord, Book, sequelize } = require("../models");
+const {
+  BorrowingRecord,
+  Book,
+  sequelize,
+  User,
+  Role,
+  Penalty,
+} = require("../models");
 
 // CORE CONFIG
 const logger = require("../core-configurations/logger-config/logger");
@@ -80,6 +89,35 @@ const addBorrowingRecord = async (req, res) => {
       "borrowingRecordControllers --> addBorrowingRecord --> reached"
     );
 
+    const token =
+      req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { email } = decoded;
+
+    // Validate if User exists and is active
+    const user = await User.findOne({
+      where: { email: email },
+      include: [{ model: Role, as: "role" }],
+      transaction,
+    });
+
+    if (!user) {
+      return errorResponse(res, "User not found or inactive.", null, 404);
+    }
+
+    // Check role-based access
+    const allowedRoles = ["super_admin", "admin", "customer"];
+    if (!allowedRoles.includes(user.role?.name)) {
+      await transaction.rollback();
+      return errorResponse(
+        res,
+        "You are not authorized to access this resource.",
+        null,
+        403
+      );
+    }
+
     const { userId, bookId, borrowDate, dueDate, status } = req.body;
 
     // Fetch the book details
@@ -98,6 +136,21 @@ const addBorrowingRecord = async (req, res) => {
       await transaction.rollback();
       return errorResponse(res, "No copies available for borrowing", null, 400);
     }
+
+    // Check if user has enough points
+    if (user.points < book.points_required) {
+      await transaction.rollback();
+      return errorResponse(
+        res,
+        "Not enough points to borrow this book",
+        null,
+        400
+      );
+    }
+
+    // Deduct points from user
+    user.points -= book.points_required;
+    await user.save({ transaction });
 
     // Create borrowing record
     const borrowRecord = await BorrowingRecord.create(
@@ -120,7 +173,7 @@ const addBorrowingRecord = async (req, res) => {
     logger.info("borrowingRecordControllers --> addBorrowingRecord --> ended");
     return successResponse(
       res,
-      "Book borrowed successfully",
+      "Book borrowed successfully. Points deducted.",
       borrowRecord,
       201
     );
@@ -140,48 +193,113 @@ const addBorrowingRecord = async (req, res) => {
 
 // Return the borrowing record ofbook
 const returnBorrowingRecord = async (req, res) => {
+  const transaction = await sequelize.transaction();
   try {
     logger.info(
       "borrowingRecordControllers --> returnBorrowingRecord --> reached"
     );
+
+    const token =
+      req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { email } = decoded;
+
+    // Validate if User exists and is active
+    const user = await User.findOne({
+      where: { email: email },
+      include: [{ model: Role, as: "role" }],
+      transaction,
+    });
+
+    if (!user) {
+      return errorResponse(res, "User not found or inactive.", null, 404);
+    }
+
+    // Check role-based access
+    const allowedRoles = ["super_admin", "admin", "customer"];
+    if (!allowedRoles.includes(user.role?.name)) {
+      await transaction.rollback();
+      return errorResponse(
+        res,
+        "You are not authorized to access this resource.",
+        null,
+        403
+      );
+    }
 
     const { recordId, userId, bookId, returnDate, status } = req.body;
 
     // Fetch the borrowing record
     const record = await BorrowingRecord.findOne({
       where: { id: recordId, user_id: userId, book_id: bookId },
+      transaction,
     });
 
     if (!record) {
+      await transaction.rollback();
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
     // Fetch the book details
-    const book = await Book.findByPk(bookId);
+    const book = await Book.findByPk(bookId, {
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
     if (!book) {
+      await transaction.rollback();
       return errorResponse(res, "Book not found", null, 404);
     }
 
     const dueDate = new Date(record.due_date);
     const returnDateObj = new Date(returnDate);
 
-    // Check if return date is past due date
     let warningMessage = null;
+    let penaltyCreated = false;
+    let fineAmount = 0;
+
+    // Check if return date is past due date
     if (returnDateObj > dueDate) {
-      warningMessage = "Warning: The return date exceeds the due date.";
+      warningMessage =
+        "Warning: The return date exceeds the due date. Fine has been applied.";
+
+      // Calculate fine (30% of book's `points_required`, rounded)
+      fineAmount = book.points_required
+        ? Math.round(book.points_required * 0.3)
+        : 0;
+
+      // Create a new penalty entry
+      await Penalty.create(
+        {
+          user_id: userId,
+          book_id: bookId,
+          fine: fineAmount,
+        },
+        { transaction }
+      );
+
+      penaltyCreated = true;
+    }
+
+    // Deduct fine from user's points
+    if (fineAmount > 0) {
+      user.points = Math.max(0, user.points - fineAmount);
+      await user.save({ transaction });
     }
 
     // Update book's available copies only if it's the first time returning
     if (!record.return_date) {
       book.available_copies += 1;
-      await book.save();
+      await book.save({ transaction });
     }
 
     // Update borrowing record details
-    record.return_date = new Date(returnDate);
+    record.return_date = returnDateObj;
     record.status = status;
+    await record.save({ transaction });
 
-    await record.save();
+    await transaction.commit();
 
     logger.info(
       "borrowingRecordControllers --> returnBorrowingRecord --> ended"

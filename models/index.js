@@ -10,6 +10,7 @@ const Category = require("./category")(sequelize);
 const Reservation = require("./reservation")(sequelize);
 const BorrowingRecord = require("./borrowingrecord")(sequelize);
 const BookAuthor = require("./bookauthor")(sequelize);
+const Penalty = require("./penalty")(sequelize);
 
 const db = {
   User,
@@ -20,6 +21,7 @@ const db = {
   Reservation,
   BorrowingRecord,
   BookAuthor,
+  Penalty,
   sequelize,
   Sequelize,
 };
@@ -29,13 +31,22 @@ User.associate({
   BorrowingRecord,
   Reservation,
   Role,
+  Penalty,
 });
 BorrowingRecord.associate({ User, Book });
 Reservation.associate({ User, Book });
 Role.associate({ User });
-Book.associate({ Author, BookAuthor, Category, BorrowingRecord, Reservation });
+Book.associate({
+  Author,
+  BookAuthor,
+  Category,
+  BorrowingRecord,
+  Reservation,
+  Penalty,
+});
 Author.associate({ Book, BookAuthor });
 BookAuthor.associate({ Book, Author });
 Category.associate({ Book });
+Penalty.associate({ User, Book });
 
 module.exports = db;

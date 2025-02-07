@@ -28,6 +28,11 @@ module.exports = (sequelize) => {
         foreignKey: "book_id",
         as: "reservations",
       });
+
+      Book.hasMany(models.Penalty, {
+        foreignKey: "book_id",
+        as: "penalties",
+      });
     }
   }
 

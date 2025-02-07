@@ -9,13 +9,20 @@ module.exports = (sequelize) => {
         foreignKey: "user_id",
         as: "borrowingRecords",
       });
+
       User.hasMany(models.Reservation, {
         foreignKey: "user_id",
         as: "reservations",
       });
+
       User.belongsTo(models.Role, {
         foreignKey: "role_id",
         as: "role",
+      });
+
+      User.hasMany(models.Penalty, {
+        foreignKey: "user_id",
+        as: "penalties",
       });
     }
   }

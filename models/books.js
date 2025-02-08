@@ -5,10 +5,9 @@ module.exports = (sequelize) => {
   class Book extends Model {
     static associate(models) {
       // Book belongs to many Authors through BookAuthor
-      Book.belongsToMany(models.Author, {
-        through: models.BookAuthor,
-        foreignKey: "book_id",
-        as: "authors",
+      Book.belongsTo(models.Author, {
+        foreignKey: "author_id",
+        as: "author",
       });
 
       // Book belongs to a Category

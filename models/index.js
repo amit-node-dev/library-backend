@@ -9,7 +9,6 @@ const Author = require("./authors")(sequelize);
 const Category = require("./category")(sequelize);
 const Reservation = require("./reservation")(sequelize);
 const BorrowingRecord = require("./borrowingrecord")(sequelize);
-const BookAuthor = require("./bookauthor")(sequelize);
 const Penalty = require("./penalty")(sequelize);
 
 const db = {
@@ -20,7 +19,6 @@ const db = {
   Category,
   Reservation,
   BorrowingRecord,
-  BookAuthor,
   Penalty,
   sequelize,
   Sequelize,
@@ -38,14 +36,12 @@ Reservation.associate({ User, Book });
 Role.associate({ User });
 Book.associate({
   Author,
-  BookAuthor,
   Category,
   BorrowingRecord,
   Reservation,
   Penalty,
 });
-Author.associate({ Book, BookAuthor });
-BookAuthor.associate({ Book, Author });
+Author.associate({ Book });
 Category.associate({ Book });
 Penalty.associate({ User, Book });
 

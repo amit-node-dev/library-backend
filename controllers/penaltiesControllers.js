@@ -1,6 +1,14 @@
-const { User, Penalty, Role } = require("../models");
+const { User, Penalty, Book } = require("../models");
 
-// GET ALL LIST OF USERS
+// CORE CONFIG
+const logger = require("../core-configurations/logger-config/logger");
+
+// UTILS
+const { successResponse, errorResponse } = require("../utils/handleResponse");
+const message = require("../utils/commonMessages");
+const { Op } = require("sequelize");
+
+// GET ALL LIST OF PENALTY
 const getAllPenaltyList = async (req, res) => {
   try {
     logger.info("penaltiesControllers --> getAllPenaltyList --> reached");
@@ -13,13 +21,13 @@ const getAllPenaltyList = async (req, res) => {
       sortBy = "createdAt",
       sortOrder = "DESC",
     } = req.query;
+
     const offset = (parseInt(page, 10) - 1) * parseInt(pageSize, 10);
     const limit = parseInt(pageSize, 10);
 
-    // Building the where condition for search
+    // Define the where condition for searching
     const whereCondition = {};
-
-    if (search) {
+    if (search.trim() !== "") {
       whereCondition[Op.or] = [
         { "$user.firstname$": { [Op.iLike]: `%${search}%` } },
         { "$user.lastname$": { [Op.iLike]: `%${search}%` } },
@@ -52,15 +60,15 @@ const getAllPenaltyList = async (req, res) => {
       items: rows.map((penalty) => ({
         id: penalty.id,
         user_id: penalty.user_id,
-        user_fullname: `${penalty.user.firstname} ${penalty.user.lastname}`,
+        fullname: `${penalty.user.firstname} ${penalty.user.lastname}`,
         book_id: penalty.book_id,
-        book_name: penalty.book.bookname,
+        bookname: penalty.book.bookname,
         fine: penalty.fine,
         createdAt: penalty.createdAt,
       })),
       total: count,
       page: parseInt(page, 10),
-      itemsPerPage: limit,
+      pageSize: limit,
       totalPages: Math.ceil(count / limit),
     };
 
@@ -82,25 +90,4 @@ const getAllPenaltyList = async (req, res) => {
   }
 };
 
-// ADD PENALTIES
-const addPenalty = async (req, res) => {
-  try {
-    logger.info("penaltiesControllers --> addPenalty --> reached");
-    const { name } = req.body;
-
-    const role = await Role.create({ name });
-
-    logger.info("penaltiesControllers --> addPenalty --> ended");
-    return successResponse(res, message.COMMON.ADDED_SUCCESS, role, 201);
-  } catch (error) {
-    logger.error("penaltiesControllers --> addPenalty --> error", error);
-    return errorResponse(
-      res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
-      error.message,
-      500
-    );
-  }
-};
-
-module.exports = { getAllPenaltyList, addPenalty };
+module.exports = { getAllPenaltyList };

@@ -125,7 +125,7 @@ const updateAuthors = async (req, res) => {
     logger.info("authorControllers --> updateAuthors --> reached");
 
     const { id } = req.params;
-    const { firstname, lastname, email } = req.body;
+    const { firstname, lastname, email, biography } = req.body;
     const author = await Author.findByPk(id);
     if (!author) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
@@ -134,6 +134,7 @@ const updateAuthors = async (req, res) => {
     author.firstname = firstname;
     author.lastname = lastname;
     author.email = email;
+    author.biography = biography;
 
     await author.save();
 

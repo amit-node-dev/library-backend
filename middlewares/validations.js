@@ -139,56 +139,6 @@ const validateBookField = [
   },
 ];
 
-const validateNewAuthor = [
-  body("firstname")
-    .isAlpha()
-    .withMessage("Firstname must contain only letters"),
-  body("lastname").isAlpha().withMessage("Lastname must contain only letters"),
-  body("email")
-    .isEmail()
-    .withMessage("Email is invalid")
-    .custom(async (email) => {
-      const existingAuthUser = await Author.findOne({ where: { email } });
-      if (existingAuthUser) {
-        throw new Error("Email already in use");
-      }
-    }),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
-
-const validatePrevAuthor = [
-  body("firstname")
-    .isAlpha()
-    .withMessage("Firstname must contain only letters"),
-  body("lastname").isAlpha().withMessage("Lastname must contain only letters"),
-  body("email").isEmail().withMessage("Invalid email format"),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
-
 // Validation for creating and updating Fine records
 const validateFine = [
   body("user_id")
@@ -239,7 +189,5 @@ module.exports = {
   validatePrevUser,
   validateRole,
   validateBookField,
-  validateNewAuthor,
-  validatePrevAuthor,
   validateFine,
 };

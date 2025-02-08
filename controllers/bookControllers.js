@@ -104,7 +104,7 @@ const getAllBooksList = async (req, res) => {
       include: [
         {
           model: Author,
-          as: "authors",
+          as: "author",
           attributes: ["firstname", "lastname"],
         },
         {

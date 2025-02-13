@@ -12,6 +12,7 @@ const message = require("../utils/commonMessages");
 
 // ADD NEW BOOKS
 const addNewBooks = async (req, res) => {
+  const transaction = await Book.sequelize.transaction();
   try {
     logger.info("bookControllers --> addNewBooks --> reached");
 
@@ -30,6 +31,30 @@ const addNewBooks = async (req, res) => {
       pointsRequired,
     } = req.body;
 
+    // Validate authorId
+    const authorExists = await Author.findByPk(authorId, { transaction });
+    if (!authorExists) {
+      await transaction.rollback();
+      return errorResponse(res, "Author not found", null, 400);
+    }
+
+    // Validate categoryId
+    const categoryExists = await Category.findByPk(categoryId, { transaction });
+    if (!categoryExists) {
+      await transaction.rollback();
+      return errorResponse(res, "Category not found", null, 400);
+    }
+
+    // Convert numeric fields
+    const parsedTotalCopies = totalCopies ? parseInt(totalCopies, 10) : null;
+    const parsedPublicationYear = publicationYear
+      ? parseInt(publicationYear, 10)
+      : null;
+    const parsedPointsRequired = pointsRequired
+      ? parseInt(pointsRequired, 10)
+      : null;
+
+    // Create new book
     const newBookData = await Book.create(
       {
         bookname,
@@ -38,16 +63,18 @@ const addNewBooks = async (req, res) => {
         conclusion,
         isbn,
         publisher,
-        publication_year: publicationYear,
-        total_copies: parseInt(totalCopies),
-        available_copies: parseInt(totalCopies),
+        publication_year: parsedPublicationYear,
+        total_copies: parsedTotalCopies,
+        available_copies: parsedTotalCopies,
         location,
         category_id: categoryId,
         author_id: authorId,
-        pointsRequired,
+        points_required: parsedPointsRequired,
       },
-      { include: [{ model: Category, as: "category" }] }
+      { transaction }
     );
+
+    await transaction.commit();
 
     logger.info("bookControllers --> addNewBooks --> ended");
     return successResponse(res, message.COMMON.ADDED_SUCCESS, newBookData, 201);
@@ -69,7 +96,7 @@ const getAllBooksList = async (req, res) => {
 
     const {
       page = 1,
-      pageSize = 5,
+      pageSize = 10,
       search = "",
       category = "",
       author = "",
@@ -101,6 +128,7 @@ const getAllBooksList = async (req, res) => {
       where: whereCondition,
       offset,
       limit,
+      order: [["createdAt", "DESC"]],
       include: [
         {
           model: Author,
@@ -146,12 +174,24 @@ const getBooksById = async (req, res) => {
     logger.info("bookControllers --> getBooksById --> reached");
 
     const { id } = req.params;
+
+    // Validate if ID is a valid number
+    if (!id || isNaN(id)) {
+      return errorResponse(res, "Invalid Book ID provided", null, 400);
+    }
+
     const book = await Book.findByPk(id, {
       include: [
-        { model: Author, as: "authors", attributes: ["firstname", "lastname"] },
-        { model: Category, as: "category", attributes: ["name"] },
+        {
+          model: Author,
+          as: "author",
+          attributes: ["id", "firstname", "lastname"],
+        },
+        { model: Category, as: "category", attributes: ["id", "name"] },
       ],
     });
+
+    // If book not found, return 404
     if (!book) {
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
@@ -171,10 +211,17 @@ const getBooksById = async (req, res) => {
 
 // UPDATE BOOKS BY ID
 const updateBooks = async (req, res) => {
+  const transaction = await Book.sequelize.transaction();
   try {
     logger.info("bookControllers --> updateBooks --> reached");
 
     const { id } = req.params;
+
+    // Validate ID
+    if (!id || isNaN(id)) {
+      return errorResponse(res, "Invalid Book ID provided", null, 400);
+    }
+
     const {
       bookname,
       title,
@@ -190,26 +237,52 @@ const updateBooks = async (req, res) => {
       pointsRequired,
     } = req.body;
 
-    const book = await Book.findByPk(id);
+    // Check if the book exists
+    const book = await Book.findByPk(id, { transaction });
     if (!book) {
+      await transaction.rollback();
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
+    // Validate authorId & categoryId existence
+    if (authorId) {
+      const authorExists = await Author.findByPk(authorId, { transaction });
+      if (!authorExists) {
+        await transaction.rollback();
+        return errorResponse(res, "Author not found", null, 400);
+      }
+    }
+
+    if (categoryId) {
+      const categoryExists = await Category.findByPk(categoryId, {
+        transaction,
+      });
+      if (!categoryExists) {
+        await transaction.rollback();
+        return errorResponse(res, "Category not found", null, 400);
+      }
+    }
+
     // Update book details
-    await book.update({
-      bookname,
-      title,
-      description,
-      conclusion,
-      isbn,
-      publisher,
-      publication_year: publicationYear,
-      total_copies: parseInt(totalCopies),
-      location,
-      category_id: categoryId,
-      author_id: authorId,
-      points_required: parseInt(pointsRequired),
-    });
+    await book.update(
+      {
+        bookname,
+        title,
+        description,
+        conclusion,
+        isbn,
+        publisher,
+        publication_year: publicationYear ? parseInt(publicationYear) : null,
+        total_copies: totalCopies ? parseInt(totalCopies) : null,
+        location,
+        category_id: categoryId,
+        author_id: authorId,
+        points_required: pointsRequired ? parseInt(pointsRequired) : null,
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
 
     logger.info("bookControllers --> updateBooks --> ended");
     return successResponse(res, message.COMMON.UPDATE_SUCCESS, book, 200);
@@ -226,16 +299,28 @@ const updateBooks = async (req, res) => {
 
 // DELETE BOOKS BY ID
 const deleteBooks = async (req, res) => {
+  const transaction = await Book.sequelize.transaction();
   try {
     logger.info("bookControllers --> deleteBooks --> reached");
 
     const { id } = req.params;
-    const book = await Book.findByPk(id);
+
+    // Validate ID
+    if (!id || isNaN(id)) {
+      return errorResponse(res, "Invalid Book ID provided", null, 400);
+    }
+
+    // Check if book exists
+    const book = await Book.findByPk(id, { transaction });
     if (!book) {
+      await transaction.rollback();
       return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
     }
 
-    await book.destroy();
+    // Perform delete operation
+    await book.destroy({ transaction });
+
+    await transaction.commit();
 
     logger.info("bookControllers --> deleteBooks --> ended");
     return successResponse(res, message.COMMON.DELETE_SUCCESS, book, 200);

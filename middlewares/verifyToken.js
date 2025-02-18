@@ -31,10 +31,10 @@ const verifyToken = (req, res, next) => {
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       logger.error("Token has expired ::: ", error);
-      return errorResponse(res, message.TOKEN.TOKEN_EXPIRED, error, 401);
+      return errorResponse(res, message.AUTH.TOKEN_EXPIRED, error, 401);
     } else {
       logger.error("Error in verifying token ::: ", error);
-      return errorResponse(res, message.TOKEN.INVALID_TOKEN, error, 403);
+      return errorResponse(res, message.AUTH.INVALID_TOKEN, error, 403);
     }
   }
 };

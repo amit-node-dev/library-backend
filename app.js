@@ -25,7 +25,7 @@ const penaltiesRoutes = require("./routes/penaltiesRoutes");
 
 dotenv.config();
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8081;
 
 const app = express();
 
@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
 
 // ---------------- PUBLIC ROUTES -----------------------
 
-// AUTH ROUTES
+// AUTH ROUTES 
 app.use(`${process.env.BASE_URL}/auth`, authRoutes);
 
 // ---------------- PRIVATE ROUTES -----------------------
@@ -77,7 +77,7 @@ db.sequelize
   })
   .then(() => {
     app.listen(PORT, () =>
-      logger.info(`Server is running on PORT ::: ${PORT}`)
+      logger.info(`Server is running on PORT ::: http://localhost:${PORT}`)
     );
   })
   .catch((err) => {

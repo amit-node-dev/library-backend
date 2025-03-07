@@ -1,7 +1,7 @@
 const { body, validationResult } = require("express-validator");
 
 // MODELS
-const { User, Author, BorrowingRecord } = require("../models");
+const { User, BorrowingRecord } = require("../models");
 
 // UTIL MODULES
 const message = require("../utils/commonMessages");

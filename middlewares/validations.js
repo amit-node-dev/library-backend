@@ -1,193 +1,220 @@
 const { body, validationResult } = require("express-validator");
 
 // MODELS
-const { User, BorrowingRecord } = require("../models");
+const { User, BorrowingRecord, Author } = require("../models");
 
 // UTIL MODULES
-const message = require("../utils/commonMessages");
+const Messages = require("../utils/commonMessages");
 const { errorResponse } = require("../utils/handleResponse");
 
-const validateAuth = [
-  body("email").isEmail().withMessage("Invalid email format"),
-  body("password")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
+/**
+ * Common validation handler
+ */
+const validate = (validations) => {
+  return [
+    ...validations,
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return errorResponse(
+          res,
+          Messages.VALIDATION.VALIDATION_ERROR,
+          errors.array(),
+          400
+        );
+      }
+      next();
+    },
+  ];
+};
 
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
-
-const validateNewUser = [
-  body("firstname").notEmpty().withMessage("Firstname is required"),
-  body("lastname").notEmpty().withMessage("Lastname is required"),
+/**
+ * Auth validation rules
+ */
+const authValidation = validate([
   body("email")
+    .trim()
     .notEmpty()
-    .withMessage("Email is required")
+    .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
     .isEmail()
-    .withMessage("Email is invalid")
+    .withMessage(Messages.VALIDATION.INVALID_EMAIL),
+  body("password")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.PASSWORD_REQUIRED)
+    .isLength({ min: 8 })
+    .withMessage(Messages.VALIDATION.PASSWORD_MIN_LENGTH),
+]);
+
+/**
+ * New user registration validation
+ */
+const newUserValidation = validate([
+  body("firstname")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.FIRSTNAME_REQUIRED)
+    .isLength({ max: 50 })
+    .withMessage(Messages.VALIDATION.FIRSTNAME_MAX_LENGTH),
+  body("lastname")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.LASTNAME_REQUIRED)
+    .isLength({ max: 50 })
+    .withMessage(Messages.VALIDATION.LASTNAME_MAX_LENGTH),
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
+    .isEmail()
+    .withMessage(Messages.VALIDATION.INVALID_EMAIL)
     .custom(async (email) => {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        throw new Error("Email already in use");
+      const user = await User.findOne({ where: { email } });
+      if (user) {
+        throw new Error(Messages.AUTH.USER_EXISTS);
       }
     }),
   body("password")
+    .trim()
     .notEmpty()
-    .withMessage("Password is required")
+    .withMessage(Messages.VALIDATION.PASSWORD_REQUIRED)
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
-  body("mobileNumber").notEmpty().withMessage("Mobile number is required"),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
-
-const validatePrevUser = [
-  body("firstname").notEmpty().withMessage("Firstname is required"),
-  body("lastname").notEmpty().withMessage("Lastname is required"),
-  body("email")
+    .withMessage(Messages.VALIDATION.PASSWORD_MIN_LENGTH)
+    .matches(/[A-Z]/)
+    .withMessage(Messages.VALIDATION.PASSWORD_UPPERCASE)
+    .matches(/[a-z]/)
+    .withMessage(Messages.VALIDATION.PASSWORD_LOWERCASE)
+    .matches(/[0-9]/)
+    .withMessage(Messages.VALIDATION.PASSWORD_NUMBER)
+    .matches(/[^A-Za-z0-9]/)
+    .withMessage(Messages.VALIDATION.PASSWORD_SPECIAL_CHAR),
+  body("mobileNumber")
+    .trim()
     .notEmpty()
-    .withMessage("Email is required")
+    .withMessage(Messages.VALIDATION.MOBILE_REQUIRED)
+    .isMobilePhone()
+    .withMessage(Messages.VALIDATION.INVALID_MOBILE),
+]);
+
+/**
+ * Existing user update validation
+ */
+const userUpdateValidation = validate([
+  body("firstname")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.FIRSTNAME_REQUIRED)
+    .isLength({ max: 50 })
+    .withMessage(Messages.VALIDATION.FIRSTNAME_MAX_LENGTH),
+  body("lastname")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.LASTNAME_REQUIRED)
+    .isLength({ max: 50 })
+    .withMessage(Messages.VALIDATION.LASTNAME_MAX_LENGTH),
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
     .isEmail()
-    .withMessage("Invalid email format"),
+    .withMessage(Messages.VALIDATION.INVALID_EMAIL),
   body("password")
     .optional()
+    .trim()
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
+    .withMessage(Messages.VALIDATION.PASSWORD_MIN_LENGTH),
+]);
 
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
+/**
+ * Role validation rules
+ */
+const roleValidation = validate([
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage(Messages.VALIDATION.ROLE_NAME_REQUIRED)
+    .isLength({ max: 30 })
+    .withMessage(Messages.VALIDATION.ROLE_NAME_MAX_LENGTH),
+]);
 
-const validateRole = [
-  body("name").notEmpty().withMessage("Role name is required"),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
-
-const validateBookField = [
+/**
+ * Book validation rules
+ */
+const bookValidation = validate([
   body("bookname")
+    .trim()
     .notEmpty()
-    .withMessage("Book name is required")
-    .isString()
-    .withMessage("Book name must be a string"),
-
+    .withMessage(Messages.VALIDATION.BOOK_NAME_REQUIRED)
+    .isLength({ max: 100 })
+    .withMessage(Messages.VALIDATION.BOOK_NAME_MAX_LENGTH),
   body("description")
+    .trim()
     .notEmpty()
-    .withMessage("Description is required")
-    .isString()
-    .withMessage("Description must be a string"),
-
+    .withMessage(Messages.VALIDATION.DESCRIPTION_REQUIRED)
+    .isLength({ max: 1000 })
+    .withMessage(Messages.VALIDATION.DESCRIPTION_MAX_LENGTH),
   body("authorId")
+    .trim()
     .notEmpty()
-    .withMessage("Author ID is required")
-    .isAlphanumeric()
-    .withMessage("Author ID must be alphanumeric"),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return errorResponse(
-        res,
-        message.AUTH.INVALID_FORMAT,
-        errors.array(),
-        400
-      );
-    }
-    next();
-  },
-];
-
-// Validation for creating and updating Fine records
-const validateFine = [
-  body("user_id")
+    .withMessage(Messages.VALIDATION.AUTHOR_REQUIRED)
     .isInt({ gt: 0 })
-    .withMessage("User ID must be a positive integer")
+    .withMessage(Messages.VALIDATION.INVALID_AUTHOR_ID)
+    .custom(async (authorId) => {
+      const author = await Author.findByPk(authorId);
+      if (!author) {
+        throw new Error(Messages.VALIDATION.AUTHOR_NOT_FOUND);
+      }
+    }),
+]);
+
+/**
+ * Fine validation rules
+ */
+const fineValidation = validate([
+  body("user_id")
+    .trim()
     .notEmpty()
-    .withMessage("User ID is required")
-    .custom(async (user_id) => {
-      const user = await User.findByPk(user_id);
+    .withMessage(Messages.VALIDATION.USER_ID_REQUIRED)
+    .isInt({ gt: 0 })
+    .withMessage(Messages.VALIDATION.INVALID_USER_ID)
+    .custom(async (userId) => {
+      const user = await User.findByPk(userId);
       if (!user) {
-        throw new Error("User not found");
+        throw new Error(Messages.VALIDATION.USER_NOT_FOUND);
       }
     }),
   body("record_id")
-    .isInt({ gt: 0 })
-    .withMessage("Record ID must be a positive integer")
+    .trim()
     .notEmpty()
-    .withMessage("Record ID is required")
-    .custom(async (record_id) => {
-      const record = await BorrowingRecord.findByPk(record_id);
+    .withMessage(Messages.VALIDATION.RECORD_ID_REQUIRED)
+    .isInt({ gt: 0 })
+    .withMessage(Messages.VALIDATION.INVALID_RECORD_ID)
+    .custom(async (recordId) => {
+      const record = await BorrowingRecord.findByPk(recordId);
       if (!record) {
-        throw new Error("Borrowing record not found");
+        throw new Error(Messages.VALIDATION.RECORD_NOT_FOUND);
       }
     }),
   body("fine_amount")
-    .isDecimal({ decimal_digits: "0,2" })
-    .withMessage("Fine amount must be a decimal with up to two decimal places")
+    .trim()
     .notEmpty()
-    .withMessage("Fine amount is required"),
+    .withMessage(Messages.VALIDATION.FINE_AMOUNT_REQUIRED)
+    .isFloat({ min: 0 })
+    .withMessage(Messages.VALIDATION.INVALID_FINE_AMOUNT),
   body("fine_date")
-    .isISO8601()
-    .withMessage("Fine date must be a valid ISO8601 date format")
+    .trim()
     .notEmpty()
-    .withMessage("Fine date is required"),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  },
-];
+    .withMessage(Messages.VALIDATION.FINE_DATE_REQUIRED)
+    .isISO8601()
+    .withMessage(Messages.VALIDATION.INVALID_DATE_FORMAT)
+    .toDate(),
+]);
 
 module.exports = {
-  validateAuth,
-  validateNewUser,
-  validatePrevUser,
-  validateRole,
-  validateBookField,
-  validateFine,
+  authValidation,
+  newUserValidation,
+  userUpdateValidation,
+  roleValidation,
+  bookValidation,
+  fineValidation,
 };

@@ -2,7 +2,7 @@ const express = require("express");
 
 // CONTROLLERS
 const {
-  createUser,
+  createOrUpdateUser,
   getAllUserList,
   getUserById,
   updateUser,
@@ -12,8 +12,8 @@ const {
 
 //  TO VALIDATE USER DATA TYPES WHILE CREATING NEW USER
 const {
-  validateNewUser,
-  validatePrevUser,
+  newUserValidation,
+  userUpdateValidation,
 } = require("../middlewares/validations");
 const checkRole = require("../middlewares/checkRole");
 
@@ -24,8 +24,8 @@ const permission = ["super_admin", "admin", "customer"];
 router.post(
   "/add_users",
   checkRole(["super_admin"]),
-  validateNewUser,
-  createUser
+  newUserValidation,
+  createOrUpdateUser
 );
 
 router.get("/", checkRole(permission), getAllUserList);
@@ -34,7 +34,12 @@ router.post("/get-points", getCurrentUserPoints);
 
 router.get("/:id", checkRole(permission), getUserById);
 
-router.put("/:id", checkRole(["super_admin"]), validatePrevUser, updateUser);
+router.put(
+  "/:id",
+  checkRole(["super_admin"]),
+  userUpdateValidation,
+  updateUser
+);
 
 router.delete("/:id", checkRole(["super_admin"]), deleteUser);
 

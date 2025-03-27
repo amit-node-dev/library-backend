@@ -15,26 +15,49 @@ dotenv.config();
 
 // THIS FUNCTIONALITY WILL VERIFY THE GENERATED TOKEN AND PROVIDE THE ACCESS TO FURTHER ROUTES.
 const verifyToken = (req, res, next) => {
-  const token =
-    req.headers.authorization && req.headers.authorization.split(" ")[1];
+  const authHeader = req.headers.authorization;
 
-  if (!token || isBlacklisted(token)) {
+  // Check for Authorization header
+  if (!authHeader) {
+    logger.warn("Authorization header missing");
     return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, null, 401);
   }
 
+  // Extract token from "Bearer <token>"
+  const tokenParts = authHeader.split(" ");
+  if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
+    logger.warn("Invalid authorization header format");
+    return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, null, 401);
+  }
+
+  const token = tokenParts[1];
+
+  // Check against token blacklist
+  if (isBlacklisted(token)) {
+    logger.warn("Attempt to use blacklisted token");
+    return errorResponse(res, message.AUTH.TOKEN_REVOKED, null, 401);
+  }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.id = decoded.id;
-    req.email = decoded.email;
+
+    // Attach user to request
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      ...(decoded.role && { role: decoded.role }) 
+    };
 
     next();
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      logger.error("Token has expired ::: ", error);
-      return errorResponse(res, message.AUTH.TOKEN_EXPIRED, error, 401);
-    } else {
-      logger.error("Error in verifying token ::: ", error);
-      return errorResponse(res, message.AUTH.INVALID_TOKEN, error, 403);
+    logger.error(`Token verification failed: ${error.message}`);
+
+    switch (error.name) {
+      case "TokenExpiredError":
+        return errorResponse(res, message.AUTH.TOKEN_EXPIRED, error, 401);
+      case "JsonWebTokenError":
+        return errorResponse(res, message.AUTH.INVALID_TOKEN, error, 403);
+      default:
+        return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, error, 401);
     }
   }
 };

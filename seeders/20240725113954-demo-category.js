@@ -44,7 +44,8 @@ module.exports = {
         },
         {
           name: "Science Fiction",
-          description: "Futuristic technology, space exploration, and scientific themes",
+          description:
+            "Futuristic technology, space exploration, and scientific themes",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -80,7 +81,8 @@ module.exports = {
         },
         {
           name: "Science & Technology",
-          description: "Books about scientific discoveries and technological advances",
+          description:
+            "Books about scientific discoveries and technological advances",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -95,7 +97,13 @@ module.exports = {
           description: "Book-length stories in comic-strip format",
           createdAt: new Date(),
           updatedAt: new Date(),
-        }
+        },
+        {
+          name: "Business",
+          description: "Learn Business Module.",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

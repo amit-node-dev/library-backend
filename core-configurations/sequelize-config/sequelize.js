@@ -1,36 +1,47 @@
+"use strict";
+
 const dotenv = require("dotenv");
 const { Sequelize } = require("sequelize");
-
-// CORE-CONFIG MODULES
 const logger = require("../logger-config/logger");
 
+// Load environment variables
 dotenv.config();
 
-const infoLogger = {
-  info: (msg) => logger.info(msg),
-};
-
+// Database configuration
 const sequelize = new Sequelize({
   database: process.env.MYSQL_DATABASE,
   dialect: process.env.MYSQL_DIALECT,
-  logging: (msg) => infoLogger.info("Query : " + msg),
-  logQueryParameters: true,
-  replication: {
-    read: [
-      {
-        host: process.env.R_MYSQL_HOST,
-        username: process.env.R_MYSQL_USERNAME,
-        password: process.env.R_MYSQL_PASSWORD,
-        port: process.env.R_MYSQL_DBPORT,
-      },
-    ],
-    write: {
-      host: process.env.W_MYSQL_HOST,
-      username: process.env.W_MYSQL_USERNAME,
-      password: process.env.W_MYSQL_PASSWORD,
-      port: process.env.W_MYSQL_DBPORT,
-    },
+  username: process.env.MYSQL_USERNAME,
+  password: process.env.MYSQL_PASSWORD,
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_DBPORT,
+  logging: (msg) => logger.info(`[SQL] ${msg}`),
+  define: {
+    timestamps: true,
+    freezeTableName: true 
   },
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  ...(process.env.MYSQL_HOST && {
+    replication: {
+      read: [{
+        host: process.env.MYSQL_HOST,
+        username: process.env.MYSQL_USERNAME,
+        password: process.env.MYSQL_PASSWORD,
+        port: process.env.MYSQL_DBPORT
+      }],
+      write: {
+        host: process.env.MYSQL_HOST,
+        username: process.env.MYSQL_USERNAME,
+        password: process.env.MYSQL_PASSWORD,
+        port: process.env.MYSQL_DBPORT
+      }
+    }
+  })
 });
 
 module.exports = sequelize;

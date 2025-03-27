@@ -10,7 +10,7 @@ const {
 } = require("../controllers/bookControllers");
 
 // MIDDLEWARE
-const { validateBookField } = require("../middlewares/validations");
+const {  bookValidation } = require("../middlewares/validations");
 const checkRole = require("../middlewares/checkRole");
 
 const permission = ["super_admin", "admin", "customer"];
@@ -21,7 +21,7 @@ const router = express.Router();
 router.post(
   "/add-book",
   checkRole(["super_admin"]),
-  validateBookField,
+  bookValidation,
   addNewBooks
 );
 
@@ -29,7 +29,7 @@ router.get("/", checkRole(permission), getAllBooksList);
 
 router.get("/:id", checkRole(permission), getBooksById);
 
-router.put("/:id", checkRole(["super_admin"]), validateBookField, updateBooks);
+router.put("/:id", checkRole(["super_admin"]), bookValidation, updateBooks);
 
 router.delete("/:id", checkRole(["super_admin"]), deleteBooks);
 

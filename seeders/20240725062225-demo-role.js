@@ -17,10 +17,20 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          name: "librarian",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
           name: "customer",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          name: "guest",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       ],
       {}
     );

@@ -36,7 +36,7 @@ const loginUser = async (req, res) => {
     // Find user with associated role
     const user = await User.findOne({
       where: { email },
-      include: [{ model: Role }],
+      include: [{ model: Role, as: "roles", }],
     });
 
     if (!user) {
@@ -79,7 +79,7 @@ const loginUser = async (req, res) => {
     };
 
     logger.info("Login successful for:", email);
-    return successResponse(res, Messages.AUTH.VERIFIED_USER, responseData, 200);
+    return successResponse(res, Messages.AUTH.LOGIN_SUCCESS, responseData, 200);
   } catch (error) {
     logger.error("authControllers --> loginUser --> error", error);
     return errorResponse(

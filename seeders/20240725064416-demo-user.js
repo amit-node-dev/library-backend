@@ -32,8 +32,10 @@ module.exports = {
           lastname: "Vishwakarma",
           email: "amit.vishwakarma@gmail.com",
           password: passwordHashes[0],
+          age: 27,
+          points: 100,
           role_id: roles.find(r => r.name === "super_admin").id,
-          mobileNumber: "7001081661",
+          mobileNumber: "+917001081661",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -43,7 +45,7 @@ module.exports = {
           email: "admin@library.com",
           password: passwordHashes[1],
           role_id: roles.find(r => r.name === "admin").id,
-          mobileNumber: "9876543210",
+          mobileNumber: "+919876543210",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -53,7 +55,7 @@ module.exports = {
           email: "staff@library.com",
           password: passwordHashes[2],
           role_id: roles.find(r => r.name === "librarian").id,
-          mobileNumber: "8765432109",
+          mobileNumber: "+918765432109",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -63,7 +65,7 @@ module.exports = {
           email: "user@library.com",
           password: passwordHashes[3],
           role_id: roles.find(r => r.name === "customer").id,
-          mobileNumber: "7654321098",
+          mobileNumber: "+917654321098",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -73,7 +75,7 @@ module.exports = {
           email: "guest@library.com",
           password: passwordHashes[4],
           role_id: roles.find(r => r.name === "guest").id,
-          mobileNumber: "6543210987",
+          mobileNumber: "+916543210987",
           createdAt: new Date(),
           updatedAt: new Date()
         }

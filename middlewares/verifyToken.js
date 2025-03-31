@@ -20,14 +20,14 @@ const verifyToken = (req, res, next) => {
   // Check for Authorization header
   if (!authHeader) {
     logger.warn("Authorization header missing");
-    return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, null, 401);
+    return errorResponse(res, message.AUTH.UNAUTHORIZED, null, 401);
   }
 
   // Extract token from "Bearer <token>"
   const tokenParts = authHeader.split(" ");
   if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
     logger.warn("Invalid authorization header format");
-    return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, null, 401);
+    return errorResponse(res, message.AUTH.UNAUTHORIZED, null, 401);
   }
 
   const token = tokenParts[1];
@@ -57,7 +57,7 @@ const verifyToken = (req, res, next) => {
       case "JsonWebTokenError":
         return errorResponse(res, message.AUTH.INVALID_TOKEN, error, 403);
       default:
-        return errorResponse(res, message.AUTH.UNAUTHORIZED_TOKEN, error, 401);
+        return errorResponse(res, message.AUTH.UNAUTHORIZED, error, 401);
     }
   }
 };

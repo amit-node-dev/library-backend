@@ -29,7 +29,7 @@ const getAllCategoriesList = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

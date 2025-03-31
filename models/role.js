@@ -24,7 +24,7 @@ module.exports = (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Role",
+      modelName: "Roles",
     }
   );
   return Role;

@@ -20,8 +20,8 @@ for (const envVar of requiredEnvVars) {
 
 // Token generation
 const generateAccessToken = (user) => {
-  const { id, email, role } = user;
-  return jwt.sign({ id, email, role }, process.env.JWT_SECRET, {
+  const { id, email } = user;
+  return jwt.sign({ id, email }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRATION,
   });
 };

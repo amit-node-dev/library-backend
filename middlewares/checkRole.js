@@ -12,14 +12,15 @@ const logger = require("../core-configurations/logger-config/logger");
 const checkRole = (roles) => {
   return async (req, res, next) => {
     try {
-      const user = await User.findByPk(req.id, {
+      const id = req.user.id
+      const user = await User.findByPk(id, {
         include: {
           model: Role,
           as: "role",
         },
       });
 
-      if (!user || !roles.includes(user.role.name)) {
+      if (!user || !roles.includes(user?.role?.name)) {
         return errorResponse(res, message.AUTH.ACCESS_DENIED, null, 403);
       }
 

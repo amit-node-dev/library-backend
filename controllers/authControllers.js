@@ -33,10 +33,13 @@ const loginUser = async (req, res) => {
 
     const { email, password } = req.body;
 
+    // Trim and lowercase email to ensure consistency
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Find user with associated role
     const user = await User.findOne({
-      where: { email },
-      include: [{ model: Role, as: "roles", }],
+      where: { email: normalizedEmail },
+      include: [{ model: Role, as: "roles", attributes: ["id", "name"] }],
     });
 
     if (!user) {
@@ -51,11 +54,14 @@ const loginUser = async (req, res) => {
       return errorResponse(res, Messages.AUTH.INVALID_PASSWORD, null, 401);
     }
 
+    const roleInfo = user?.roles?.dataValues;
+    console.log("AAA ", roleInfo)
+
     // Generate tokens
     const accessToken = generateAccessToken({
       id: user.id,
       email: user.email,
-      role: user.Role?.name,
+      role: roleInfo?.name,
     });
 
     const refreshToken = generateRefreshToken({
@@ -70,7 +76,8 @@ const loginUser = async (req, res) => {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
-        role: user.Role?.name,
+        roleId: roleInfo?.id,
+        roleName: roleInfo?.name,
       },
       tokens: {
         accessToken,
@@ -132,52 +139,58 @@ const sentOTP = async (req, res) => {
       ? mobileNumber
       : `+91${mobileNumber}`;
 
-    // Check if user exists
+    // Check if user already exists
     const existingUser = await User.findOne({
       where: { mobileNumber: formattedNumber },
     });
 
     if (existingUser) {
-      return errorResponse(res, Messages.AUTH.ALREADY_EXIST, null, 409);
+      return errorResponse(res, Messages.AUTH.USER_EXISTS, null, 409);
     }
 
-    // Fetch the role IDs to associate with users
-    const role = await Role.findOne({ where: { name: "customer" } });
-    if (!role) {
-      return errorResponse(res, "Customer role not found", null, 500);
-    }
-
-    // Get customer role
+    // Get customer role (fetch once instead of twice)
     const customerRole = await Role.findOne({ where: { name: "customer" } });
     if (!customerRole) {
-      throw new Error("Customer role not configured");
+      return errorResponse(res, "Customer role not configured", null, 500);
     }
 
-    // Create temporary user (consider removing this in production)
-    await User.create({
-      firstname: "Temp",
-      lastname: "User",
-      email: `temp-${Date.now()}@example.com`,
-      password: await bcrypt.hash("Temp@1234", 10),
-      roleId: customerRole.id,
-      mobileNumber: formattedNumber,
-    });
+    try {
+      // Attempt to send OTP first
+      await twilioClient.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+        .verifications.create({
+          to: formattedNumber,
+          channel: "sms",
+        });
 
-    // Send OTP
-    await twilioClient.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      .verifications.create({
-        to: formattedNumber,
-        channel: "sms",
+      // Only create user if OTP was successfully sent
+      const tempUser = await User.create({
+        firstname: "Temp",
+        lastname: "User",
+        email: `temp-${Date.now()}@example.com`,
+        password: await bcrypt.hash("Temp@1234", 10),
+        roleId: customerRole.id,
+        mobileNumber: formattedNumber,
       });
 
-    logger.info(`OTP sent to ${formattedNumber}`);
-    return successResponse(res, Messages.AUTH.OTP_SENT, null, 200);
+      logger.info(`OTP sent to ${formattedNumber}`);
+      return successResponse(
+        res,
+        Messages.AUTH.OTP_SENT,
+        {
+          tempUserId: tempUser.id,
+        },
+        200
+      );
+    } catch (twilioError) {
+      logger.error("Failed to send OTP:", twilioError);
+      return errorResponse(res, "Failed to send OTP", null, 500);
+    }
   } catch (error) {
     logger.error("authControllers --> sentOTP --> error", error);
     return errorResponse(
       res,
-      Messages.SERVER.INTERNAL_SERVER_ERROR,
+      Messages.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -214,17 +227,17 @@ const verifyOTP = async (req, res) => {
       });
 
     if (verification.status !== "approved") {
-      return errorResponse(res, Messages.AUTH.INVALID_OTP, null, 400);
+      return errorResponse(res, Messages.AUTH.INAVLID_OTP, null, 400);
     }
 
     // Get verified user
     const user = await User.findOne({
       where: { mobileNumber: formattedNumber },
-      include: [{ model: Role }],
+      include: [{ model: Role, as: "roles" }],
     });
 
     if (!user) {
-      return errorResponse(res, Messages.AUTH.INVALID_USER, null, 404);
+      return errorResponse(res, Messages.AUTH.USER_NOT_FOUND, null, 404);
     }
 
     return successResponse(res, Messages.AUTH.OTP_VERIFIED, user, 200);
@@ -232,7 +245,7 @@ const verifyOTP = async (req, res) => {
     logger.error("authControllers --> verifyOTP --> error", error);
     return errorResponse(
       res,
-      Messages.SERVER.INTERNAL_SERVER_ERROR,
+      Messages.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

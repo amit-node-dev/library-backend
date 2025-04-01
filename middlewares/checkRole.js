@@ -13,14 +13,25 @@ const checkRole = (roles) => {
   return async (req, res, next) => {
     try {
       const id = req.user.id
+
       const user = await User.findByPk(id, {
         include: {
           model: Role,
-          as: "role",
+          as: "roles",
+          attributes: ["name"],
         },
       });
 
-      if (!user || !roles.includes(user?.role?.name)) {
+      if (!user) {
+        return errorResponse(res, message.AUTH.USER_NOT_FOUND, null, 403);
+      }
+
+      // Check if user has any of the allowed roles
+      const hasPermission = user.roles.some(role => 
+        roles.includes(role.name)
+      );
+
+      if (!hasPermission) {
         return errorResponse(res, message.AUTH.ACCESS_DENIED, null, 403);
       }
 
@@ -29,7 +40,7 @@ const checkRole = (roles) => {
       logger.error("Error in check role middleware ::: ", error);
       return errorResponse(
         res,
-        message.SERVER.INTERNAL_SERVER_ERROR,
+        message.SERVER.INTERNAL_ERROR,
         error,
         500
       );

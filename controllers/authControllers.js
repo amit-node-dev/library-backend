@@ -55,7 +55,6 @@ const loginUser = async (req, res) => {
     }
 
     const roleInfo = user?.roles?.dataValues;
-    console.log("AAA ", roleInfo)
 
     // Generate tokens
     const accessToken = generateAccessToken({

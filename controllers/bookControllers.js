@@ -161,7 +161,7 @@ const getAllBooksList = async (req, res) => {
     logger.error("bookControllers --> getAllBooksList --> error", error);
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

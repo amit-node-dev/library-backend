@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
 
       User.belongsTo(models.Role, {
         foreignKey: "role_id",
-        as: "roles",
+        as: "role",
       });
 
       User.hasMany(models.Penalty, {

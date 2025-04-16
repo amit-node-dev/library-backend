@@ -6,11 +6,11 @@ module.exports = (sequelize) => {
     static associate(models) {
       BorrowingRecord.belongsTo(models.User, {
         foreignKey: "user_id",
-        as: "users",
+        as: "user",
       });
       BorrowingRecord.belongsTo(models.Book, {
         foreignKey: "book_id",
-        as: "books",
+        as: "book",
       });
     }
   }

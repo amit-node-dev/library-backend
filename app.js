@@ -10,7 +10,6 @@ const rateLimit = require("express-rate-limit");
 // Core configurations
 const logger = require("./core-configurations/logger-config/logger");
 const sequelize = require("./core-configurations/sequelize-config/sequelize");
-const db = require("./models");
 
 // Middlewares
 const { verifyToken } = require("./middlewares/verifyToken");
@@ -32,16 +31,18 @@ const app = express();
 
 // Security Middlewares
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    optionsSuccessStatus: 200,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100, 
-  message: "Too many requests from this IP, please try again later"
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: "Too many requests from this IP, please try again later",
 });
 app.use(limiter);
 
@@ -57,7 +58,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({
     status: "healthy",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -66,7 +67,7 @@ app.get("/", (req, res) => {
   res.status(200).json({
     message: "Library Management System API",
     version: "1.0.0",
-    documentation: `${process.env.BASE_URL}/docs`
+    documentation: `${process.env.BASE_URL}/docs`,
   });
 });
 
@@ -93,21 +94,15 @@ const PORT = process.env.PORT || 5001;
 
 const startServer = async () => {
   try {
-    await db.sequelize.authenticate();
-    logger.info("Database connection established successfully");
-
     // Sync models with database
-    if (process.env.NODE_ENV === "development") {
-      await sequelize.sync({ alter: true });
-      logger.warn("Database synchronized with alter option (development only)");
-    } else {
-      await sequelize.sync();
-      logger.info("Database synchronized");
-    }
+    await sequelize.sync();
+    logger.info("Database synchronized");
 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
-      logger.info(`API Base URL: ${process.env.BASE_URL || `http://localhost:${PORT}`}`);
+      logger.info(
+        `API Base URL: ${process.env.BASE_URL || `http://localhost:${PORT}`}`
+      );
     });
   } catch (error) {
     logger.error("Failed to start server:", error);
@@ -135,5 +130,3 @@ process.on("SIGTERM", () => {
 
 // Start the server
 startServer();
-
-module.exports = app; 

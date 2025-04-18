@@ -58,7 +58,7 @@ const registerUser = async (req, res) => {
           country,
           state,
           city,
-          mobileNumber: formattedMobile,
+          mobileNumber,
           points: existingUser.points || 100,
         },
         { transaction }
@@ -77,7 +77,7 @@ const registerUser = async (req, res) => {
           country,
           state,
           city,
-          mobileNumber: formattedMobile,
+          mobileNumber,
           points: 100,
         },
         { transaction }
@@ -111,7 +111,7 @@ const getAllUserList = async (req, res) => {
     // Verify and decode token
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
-      return errorResponse(res, Messages.AUTH.UNAUTHORIZED_TOKEN, null, 401);
+      return errorResponse(res, Messages.AUTH.UNAUTHORIZED, null, 401);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -235,7 +235,6 @@ const updateUser = async (req, res) => {
     const {
       firstName,
       lastName,
-      emailId,
       age,
       mobileNumber,
       oldPassword,

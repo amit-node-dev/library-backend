@@ -2,7 +2,7 @@ const dotenv = require("dotenv");
 const { Sequelize } = require("sequelize");
 
 // Load the appropriate .env file
-dotenv.config({});
+dotenv.config();
 
 const infoLogger = {
   info: (msg) => console.log(msg),
@@ -19,14 +19,14 @@ const sequelize = new Sequelize({
         host: process.env.MYSQL_HOST,
         username: process.env.MYSQL_USERNAME,
         password: process.env.MYSQL_PASSWORD,
-        port: process.env.MYSQL_DBPORT,
+        port: process.env.MYSQL_PORT,
       },
     ],
     write: {
       host: process.env.MYSQL_HOST,
       username: process.env.MYSQL_USERNAME,
       password: process.env.MYSQL_PASSWORD,
-      port: process.env.MYSQL_DBPORT,
+      port: process.env.MYSQL_PORT,
     },
   },
   pool: {

@@ -1,6 +1,8 @@
 require("dotenv").config();
+
 const express = require("express");
 const helmet = require("helmet");
+const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
@@ -20,7 +22,7 @@ const userRoutes = require("./routes/userRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const authorRoutes = require("./routes/authorRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");      
 const borrowingRecordRoutes = require("./routes/borrowingRecordRoutes");
 const penaltiesRoutes = require("./routes/penaltiesRoutes");
 
@@ -32,43 +34,31 @@ const app = express();
 
 // Security Middlewares
 app.use(helmet());
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    optionsSuccessStatus: 200,
-  })
-);
+app.use(cors());
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: "Too many requests from this IP, please try again later",
-});
-app.use(limiter);
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: "Too many requests from this IP, please try again later",
+  })
+);
 
 // Request logging
 app.use(morgan("combined"));
 
 // Body parsers
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/check-status", (req, res) => {
   res.status(200).json({
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-  });
-});
-
-// Base route
-app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "Library Management System API",
-    version: "1.0.0",
-    documentation: `${process.env.BASE_URL}/docs`,
   });
 });
 
@@ -111,21 +101,3 @@ db.sequelize
   .catch((err) => {
     logger.error("Database connection failed:", err);
   });
-
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (err) => {
-  logger.error("Unhandled Rejection:", err);
-  process.exit(1);
-});
-
-// Handle uncaught exceptions
-process.on("uncaughtException", (err) => {
-  logger.error("Uncaught Exception:", err);
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on("SIGTERM", () => {
-  logger.info("SIGTERM received. Shutting down gracefully...");
-  process.exit(0);
-});

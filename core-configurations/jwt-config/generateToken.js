@@ -3,21 +3,6 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-// Validate required JWT environment variables
-const requiredEnvVars = [
-  "JWT_SECRET",
-  "JWT_EXPIRATION",
-  "JWT_REFRESH_SECRET",
-  "JWT_REFRESH_EXPIRATION",
-];
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    logger.error(`Missing JWT environment variable: ${envVar}`);
-    throw new Error(`Missing required JWT configuration: ${envVar}`);
-  }
-}
-
 // Token generation
 const generateAccessToken = (user) => {
   const { id, email } = user;

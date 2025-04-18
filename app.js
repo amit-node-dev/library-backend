@@ -2,7 +2,6 @@ require("dotenv").config();
 
 const express = require("express");
 const helmet = require("helmet");
-const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
@@ -22,7 +21,7 @@ const userRoutes = require("./routes/userRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const authorRoutes = require("./routes/authorRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");      
+const categoryRoutes = require("./routes/categoryRoutes");
 const borrowingRecordRoutes = require("./routes/borrowingRecordRoutes");
 const penaltiesRoutes = require("./routes/penaltiesRoutes");
 
@@ -36,22 +35,20 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 
+// Parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Rate limiting
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: "Too many requests from this IP, please try again later",
-  })
-);
+const limit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: "Too many requests from this IP, please try again later",
+});
+app.use(limit);
 
 // Request logging
 app.use(morgan("combined"));
-
-// Body parsers
-app.use(express.json());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get("/check-status", (req, res) => {

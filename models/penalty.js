@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
   }
   Penalty.init(
     {
-      user_id: {
+      userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -28,7 +28,7 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
-      book_id: {
+      bookId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -36,7 +36,7 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
-      fine: {
+      fineAmount: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

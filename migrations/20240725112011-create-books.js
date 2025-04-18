@@ -11,13 +11,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      bookname: {
+      bookName: {
         type: Sequelize.STRING(100),
       },
       title: {
         type: Sequelize.TEXT,
       },
-      author_id: {
+      authorId: {
         type: Sequelize.INTEGER,
         references: {
           model: "Authors",
@@ -25,7 +25,7 @@ module.exports = {
         },
         allowNull: false,
       },
-      category_id: {
+      categoryId: {
         type: Sequelize.INTEGER,
         references: {
           model: "Categories",
@@ -46,21 +46,21 @@ module.exports = {
       publisher: {
         type: Sequelize.STRING(50),
       },
-      publication_year: {
+      publicationYear: {
         type: Sequelize.STRING(50),
       },
-      total_copies: {
+      totalCopies: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      available_copies: {
+      availableCopies: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
       location: {
         type: Sequelize.STRING(50),
       },
-      points_required: {
+      pointsRequired: {
         type: Sequelize.INTEGER,
         allowNull: true,
       },

@@ -37,7 +37,7 @@ module.exports = (sequelize) => {
 
   Book.init(
     {
-      bookname: {
+      bookName: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
@@ -62,16 +62,16 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(50),
         allowNull: true,
       },
-      publication_year: {
+      publicationYear: {
         type: DataTypes.STRING(50),
         allowNull: true,
       },
-      total_copies: {
+      totalCopies: {
         type: DataTypes.INTEGER,
         defaultValue: 1,
         allowNull: false,
       },
-      available_copies: {
+      availableCopies: {
         type: DataTypes.INTEGER,
         defaultValue: 1,
         allowNull: false,
@@ -80,7 +80,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(50),
         allowNull: true,
       },
-      author_id: {
+      authorId: {
         type: DataTypes.INTEGER,
         references: {
           model: "Authors",
@@ -88,7 +88,7 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
       },
-      category_id: {
+      categoryId: {
         type: DataTypes.INTEGER,
         references: {
           model: "Categories",
@@ -96,7 +96,7 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
       },
-      points_required: {
+      pointsRequired: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },

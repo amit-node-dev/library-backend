@@ -1,32 +1,17 @@
-const { Sequelize } = require("sequelize");
 const dotenv = require("dotenv");
+const { Sequelize } = require("sequelize");
 
-// Load environment variables
-dotenv.config();
+// Load the appropriate .env file
+dotenv.config({});
 
-// Logger Configuration
-const logger = require("../logger-config/logger");
+const infoLogger = {
+  info: (msg) => console.log(msg),
+};
 
-// Validate required environment variables
-const requiredEnvVars = [
-  "MYSQL_DIALECT",
-  "MYSQL_DATABASE",
-  "MYSQL_HOST",
-  "MYSQL_USERNAME",
-  "MYSQL_PASSWORD",
-  "MYSQL_PORT",
-];
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-}
-
-// Database Configuration Object
-const dbConfig = {
+const sequelize = new Sequelize({
   database: process.env.MYSQL_DATABASE,
-  dialect: process.env.MYSQL_DIALECT || "mysql",
-  logging: (msg) => logger.debug(`Database Query: ${msg}`),
+  dialect: process.env.MYSQL_DIALECT,
+  logging: (msg) => infoLogger.info("Query ::: " + msg),
   logQueryParameters: true,
   replication: {
     read: [
@@ -34,42 +19,22 @@ const dbConfig = {
         host: process.env.MYSQL_HOST,
         username: process.env.MYSQL_USERNAME,
         password: process.env.MYSQL_PASSWORD,
-        port: process.env.MYSQL_PORT || 3306,
+        port: process.env.MYSQL_DBPORT,
       },
     ],
     write: {
       host: process.env.MYSQL_HOST,
       username: process.env.MYSQL_USERNAME,
       password: process.env.MYSQL_PASSWORD,
-      port: process.env.MYSQL_PORT || 3306,
+      port: process.env.MYSQL_DBPORT,
     },
   },
   pool: {
-    max: parseInt(process.env.MYSQL_POOL_MAX) || 10,
-    min: parseInt(process.env.MYSQL_POOL_MIN) || 2,
-    acquire: parseInt(process.env.MYSQL_POOL_ACQUIRE) || 30000,
-    idle: parseInt(process.env.MYSQL_POOL_IDLE) || 10000,
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
   },
-  define: {
-    timestamps: true,
-    underscored: true,
-    paranoid: process.env.MYSQL_PARANOID === "true",
-    freezeTableName: true,
-  },
-  dialectOptions:
-    process.env.MYSQL_SSL === "true"
-      ? {
-          ssl: {
-            require: true,
-            rejectUnauthorized: false,
-          },
-        }
-      : {},
-  benchmark: true,
-  timezone: process.env.MYSQL_TIMEZONE || "+00:00",
-};
-
-// Initialize Sequelize Instance
-const sequelize = new Sequelize(dbConfig);
+});
 
 module.exports = sequelize;

@@ -22,7 +22,7 @@ module.exports = (sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      user_id: {
+      userId: {
         type: DataTypes.INTEGER,
         references: {
           model: "Users",
@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
       },
-      book_id: {
+      bookId: {
         type: DataTypes.INTEGER,
         references: {
           model: "Books",
@@ -38,7 +38,7 @@ module.exports = (sequelize) => {
         },
         allowNull: false,
       },
-      reservation_date: {
+      reservationDate: {
         type: DataTypes.DATE,
         allowNull: false,
         validate: {

@@ -1,6 +1,6 @@
 "use strict";
 
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const SALT_ROUNDS = 10;
 
 /** @type {import('sequelize-cli').Migration} */
@@ -20,70 +20,73 @@ module.exports = {
       // Create password hashes
       const passwordHashes = await Promise.all([
         bcrypt.hash("Amit@4582", SALT_ROUNDS),
-        bcrypt.hash("Admin@1234", SALT_ROUNDS),
-        bcrypt.hash("Librarian@123", SALT_ROUNDS),
-        bcrypt.hash("Customer@456", SALT_ROUNDS),
-        bcrypt.hash("", SALT_ROUNDS) 
+        bcrypt.hash("Vishal@123", SALT_ROUNDS),
+        bcrypt.hash("Anjali@123", SALT_ROUNDS),
+        bcrypt.hash("Nimit@123", SALT_ROUNDS),
+        bcrypt.hash("Jinmay@123", SALT_ROUNDS),
       ]);
 
       await queryInterface.bulkInsert("Users", [
         {
-          firstname: "Amit",
-          lastname: "Vishwakarma",
-          email: "amit.vishwakarma@gmail.com",
+          firstName: "Amit",
+          lastName: "Vishwakarma",
+          emailId: "amit.vishwakarma@gmail.com",
           password: passwordHashes[0],
           age: 27,
-          points: 100,
-          role_id: roles.find(r => r.name === "super_admin").id,
-          mobileNumber: "+917001081661",
+          roleId: roles.find((r) => r.name === "super_admin").id,
+          mobileNumber: "7001081661",
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
-          firstname: "Library",
-          lastname: "Admin",
-          email: "admin@library.com",
+          firstName: "Vishal",
+          lastName: "Kumar",
+          emailId: "vishal.kumar@gmail.com",
           password: passwordHashes[1],
-          role_id: roles.find(r => r.name === "admin").id,
-          mobileNumber: "+919876543210",
+          age: 35,
+          roleId: roles.find((r) => r.name === "admin").id,
+          mobileNumber: "9876543210",
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
-          firstname: "Library",
-          lastname: "Staff",
-          email: "staff@library.com",
+          firstName: "Anjali",
+          lastName: "Arora",
+          emailId: "anjali.arora@gmail.com",
           password: passwordHashes[2],
-          role_id: roles.find(r => r.name === "librarian").id,
-          mobileNumber: "+918765432109",
+          age: 42,
+          roleId: roles.find((r) => r.name === "librarian").id,
+          mobileNumber: "8765432109",
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
-          firstname: "Regular",
-          lastname: "User",
-          email: "user@library.com",
+          firstName: "Nimit",
+          lastName: "Thakur",
+          emailId: "thakur.nimit@gmail.com",
           password: passwordHashes[3],
-          role_id: roles.find(r => r.name === "customer").id,
-          mobileNumber: "+917654321098",
+          age: 22,
+          roleId: roles.find((r) => r.name === "customer").id,
+          mobileNumber: "7654321098",
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
-          firstname: "Guest",
-          lastname: "Account",
-          email: "guest@library.com",
+          firstName: "Jinmay",
+          lastName: "Joshi",
+          emailId: "jinmay.joshi@gmail.com",
           password: passwordHashes[4],
-          role_id: roles.find(r => r.name === "guest").id,
-          mobileNumber: "+916543210987",
+          age: 36,
+          roleId: roles.find((r) => r.name === "guest").id,
+          mobileNumber: "6543210987",
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ]);
-      
-      console.log('Successfully seeded users with hashed passwords');
+
+      console.log("Successfully seeded users with hashed passwords");
     } catch (error) {
-      console.error('Error seeding users:', error);
+      console.error("Error seeding users:", error);
       throw error;
     }
   },
@@ -94,17 +97,17 @@ module.exports = {
         email: {
           [Sequelize.Op.in]: [
             "amit.vishwakarma@gmail.com",
-            "admin@library.com",
-            "staff@library.com",
-            "user@library.com",
-            "guest@library.com"
-          ]
-        }
+            "vishal.kumar@gmail.com",
+            "anjali.arora@gmail.com",
+            "thakur.nimit@gmail.com",
+            "jinmay.joshi@gmail.com",
+          ],
+        },
       });
-      console.log('Successfully reverted user seeds');
+      console.log("Successfully reverted user seeds");
     } catch (error) {
-      console.error('Error reverting user seeds:', error);
+      console.error("Error reverting user seeds:", error);
       throw error;
     }
-  }
+  },
 };

@@ -1,5 +1,3 @@
-"use strict";
-
 require("dotenv").config();
 const express = require("express");
 const helmet = require("helmet");
@@ -25,6 +23,9 @@ const authorRoutes = require("./routes/authorRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const borrowingRecordRoutes = require("./routes/borrowingRecordRoutes");
 const penaltiesRoutes = require("./routes/penaltiesRoutes");
+
+// DB Modules
+const db = require("./models");
 
 // Initialize Express app
 const app = express();
@@ -92,23 +93,24 @@ app.use(errorHandler);
 // Database connection and server startup
 const PORT = process.env.PORT || 5001;
 
-const startServer = async () => {
-  try {
-    // Sync models with database
-    await sequelize.sync();
-    logger.info("Database synchronized");
-
+// Database Connection & Server Startup
+db.sequelize
+  .authenticate()
+  .then(() => {
+    logger.info("Database connection established successfully.");
+    return sequelize.sync();
+  })
+  .then(() => {
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
       logger.info(
         `API Base URL: ${process.env.BASE_URL || `http://localhost:${PORT}`}`
       );
     });
-  } catch (error) {
-    logger.error("Failed to start server:", error);
-    process.exit(1);
-  }
-};
+  })
+  .catch((err) => {
+    logger.error("Database connection failed:", err);
+  });
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err) => {
@@ -127,6 +129,3 @@ process.on("SIGTERM", () => {
   logger.info("SIGTERM received. Shutting down gracefully...");
   process.exit(0);
 });
-
-// Start the server
-startServer();

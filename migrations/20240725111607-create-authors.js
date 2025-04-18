@@ -11,13 +11,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      firstname: {
+      firstName: {
         type: Sequelize.STRING(25),
       },
-      lastname: {
+      lastName: {
         type: Sequelize.STRING(25),
       },
-      email: {
+      emailId: {
         type: Sequelize.STRING(30),
       },
       biography: {

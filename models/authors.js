@@ -13,15 +13,15 @@ module.exports = (sequelize) => {
 
   Author.init(
     {
-      firstname: {
+      firstName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      lastname: {
+      lastName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      email: {
+      emailId: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,

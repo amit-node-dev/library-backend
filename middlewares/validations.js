@@ -32,7 +32,7 @@ const validate = (validations) => {
  * Auth validation rules
  */
 const authValidation = validate([
-  body("email")
+  body("emailId")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
@@ -50,19 +50,19 @@ const authValidation = validate([
  * New user registration validation
  */
 const newUserValidation = validate([
-  body("firstname")
+  body("firstName")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.FIRSTNAME_REQUIRED)
     .isLength({ max: 50 })
     .withMessage(Messages.VALIDATION.FIRSTNAME_MAX_LENGTH),
-  body("lastname")
+  body("lastName")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.LASTNAME_REQUIRED)
     .isLength({ max: 50 })
     .withMessage(Messages.VALIDATION.LASTNAME_MAX_LENGTH),
-  body("email")
+  body("emailId")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
@@ -100,19 +100,19 @@ const newUserValidation = validate([
  * Existing user update validation
  */
 const userUpdateValidation = validate([
-  body("firstname")
+  body("firstName")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.FIRSTNAME_REQUIRED)
     .isLength({ max: 50 })
     .withMessage(Messages.VALIDATION.FIRSTNAME_MAX_LENGTH),
-  body("lastname")
+  body("lastName")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.LASTNAME_REQUIRED)
     .isLength({ max: 50 })
     .withMessage(Messages.VALIDATION.LASTNAME_MAX_LENGTH),
-  body("email")
+  body("emailId")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
@@ -141,7 +141,7 @@ const roleValidation = validate([
  * Book validation rules
  */
 const bookValidation = validate([
-  body("bookname")
+  body("bookName")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.BOOK_NAME_REQUIRED)
@@ -171,7 +171,7 @@ const bookValidation = validate([
  * Fine validation rules
  */
 const fineValidation = validate([
-  body("user_id")
+  body("userId")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.USER_ID_REQUIRED)
@@ -183,7 +183,7 @@ const fineValidation = validate([
         throw new Error(Messages.VALIDATION.USER_NOT_FOUND);
       }
     }),
-  body("record_id")
+  body("recordId")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.RECORD_ID_REQUIRED)
@@ -195,13 +195,13 @@ const fineValidation = validate([
         throw new Error(Messages.VALIDATION.RECORD_NOT_FOUND);
       }
     }),
-  body("fine_amount")
+  body("fineAmount")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.FINE_AMOUNT_REQUIRED)
     .isFloat({ min: 0 })
     .withMessage(Messages.VALIDATION.INVALID_FINE_AMOUNT),
-  body("fine_date")
+  body("fineDate")
     .trim()
     .notEmpty()
     .withMessage(Messages.VALIDATION.FINE_DATE_REQUIRED)

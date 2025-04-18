@@ -12,16 +12,16 @@ const logger = require("../core-configurations/logger-config/logger");
 const { successResponse, errorResponse } = require("../utils/handleResponse");
 const Messages = require("../utils/commonMessages");
 
-// CREATE / UPDATE USER
-const createOrUpdateUser = async (req, res) => {
+// REGISTER USER
+const registerUser = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    logger.info("userControllers --> createOrUpdateUser --> reached");
+    logger.info("userControllers --> registerUser --> reached");
 
     const {
-      firstname,
-      lastname,
-      email,
+      firstName,
+      lastName,
+      emailId,
       age,
       password,
       country,
@@ -31,19 +31,14 @@ const createOrUpdateUser = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!email) {
+    if (!emailId) {
       await transaction.rollback();
       return errorResponse(res, Messages.VALIDATION.REQUIRED_FIELD, null, 400);
     }
 
-    // Format mobile number
-    const formattedMobile = mobileNumber.startsWith("+")
-      ? mobileNumber
-      : `+91${mobileNumber}`;
-
     // Check for existing user
     const existingUser = await User.findOne({
-      where: { [Op.or]: [{ email }, { mobileNumber: formattedMobile }] },
+      where: { [Op.or]: [{ emailId }, { mobileNumber }] },
       transaction,
     });
 
@@ -55,9 +50,9 @@ const createOrUpdateUser = async (req, res) => {
       // Update existing user
       await existingUser.update(
         {
-          firstname,
-          lastname,
-          email,
+          firstName,
+          lastName,
+          emailId,
           age: parseInt(age, 10),
           password: hashedPassword,
           country,
@@ -74,9 +69,9 @@ const createOrUpdateUser = async (req, res) => {
       // Create new user
       user = await User.create(
         {
-          firstname,
-          lastname,
-          email,
+          firstName,
+          lastName,
+          emailId,
           age: parseInt(age, 10),
           password: hashedPassword,
           country,
@@ -95,10 +90,10 @@ const createOrUpdateUser = async (req, res) => {
       ? Messages.COMMON.UPDATE_SUCCESS
       : Messages.COMMON.REGISTER_SUCCESS;
 
-    logger.info("userControllers --> createOrUpdateUser --> ended");
+    logger.info("userControllers --> registerUser --> ended");
     return successResponse(res, message, user, existingUser ? 200 : 201);
   } catch (error) {
-    logger.error("userControllers --> createOrUpdateUser --> error", error);
+    logger.error("userControllers --> registerUser --> error", error);
     return errorResponse(
       res,
       message.SERVER.INTERNAL_SERVER_ERROR,
@@ -155,13 +150,13 @@ const getAllUserList = async (req, res) => {
     const filters = {};
     if (search) {
       filters[Op.or] = [
-        { firstname: { [Op.iLike]: `%${search}%` } },
-        { lastname: { [Op.iLike]: `%${search}%` } },
-        { email: { [Op.iLike]: `%${search}%` } },
+        { firstName: { [Op.iLike]: `%${search}%` } },
+        { lastName: { [Op.iLike]: `%${search}%` } },
+        { emailId: { [Op.iLike]: `%${search}%` } },
       ];
     }
     if (role) {
-      filters.role_id = role;
+      filters.roleId = role;
     }
 
     // Fetch paginated results
@@ -238,9 +233,9 @@ const updateUser = async (req, res) => {
 
     const { id } = req.params;
     const {
-      firstname,
-      lastname,
-      email,
+      firstName,
+      lastName,
+      emailId,
       age,
       mobileNumber,
       oldPassword,
@@ -248,7 +243,7 @@ const updateUser = async (req, res) => {
       country,
       state,
       city,
-      role_id,
+      roleId,
     } = req.body;
 
     const user = await User.findByPk(id, { transaction });
@@ -281,15 +276,15 @@ const updateUser = async (req, res) => {
     // Update user details
     await user.update(
       {
-        firstname,
-        lastname,
+        firstName,
+        lastName,
         email,
         age: parseInt(age, 10),
         mobileNumber: formattedMobile,
         country,
         state,
         city,
-        role_id,
+        roleId,
       },
       { transaction }
     );
@@ -389,7 +384,7 @@ const getCurrentUserPoints = async (req, res) => {
 };
 
 module.exports = {
-  createOrUpdateUser,
+  registerUser,
   getAllUserList,
   getUserById,
   updateUser,

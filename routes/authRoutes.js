@@ -7,14 +7,14 @@ const {
   sentOTP,
   verifyOTP,
 } = require("../controllers/authControllers");
-const { createOrUpdateUser } = require("../controllers/userControllers");
+const { registerUser } = require("../controllers/userControllers");
 
 // MIDDLEWARE MODULE
 const { newUserValidation, authValidation } = require("../middlewares/validations");
 
 const router = express.Router();
 
-router.post("/register-user", newUserValidation, createOrUpdateUser);
+router.post("/register-user", newUserValidation, registerUser);
 
 router.post("/login", authValidation, loginUser);
 

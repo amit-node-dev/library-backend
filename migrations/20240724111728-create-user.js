@@ -11,15 +11,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      firstname: {
+      firstName: {
         type: Sequelize.STRING(25),
         allowNull: false,
       },
-      lastname: {
+      lastName: {
         type: Sequelize.STRING(25),
         allowNull: false,
       },
-      email: {
+      emailId: {
         type: Sequelize.STRING(30),
         allowNull: false,
         unique: true,
@@ -39,7 +39,7 @@ module.exports = {
           len: [8, 100],
         },
       },
-      role_id: {
+      roleId: {
         type: Sequelize.INTEGER,
         references: {
           model: "Roles",

@@ -29,15 +29,15 @@ module.exports = (sequelize) => {
 
   User.init(
     {
-      firstname: {
+      firstName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      lastname: {
+      lastName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      email: {
+      emailId: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
@@ -59,7 +59,7 @@ module.exports = (sequelize) => {
           },
         },
       },
-      role_id: {
+      roleId: {
         type: DataTypes.INTEGER,
         references: {
           model: "Roles",

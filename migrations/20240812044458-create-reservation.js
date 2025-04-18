@@ -10,21 +10,21 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
         references: {
           model: "Users",
           key: "id",
         },
       },
-      book_id: {
+      bookId: {
         type: Sequelize.INTEGER,
         references: {
           model: "Books",
           key: "id",
         },
       },
-      reservation_date: {
+      reservationDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },

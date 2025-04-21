@@ -1,5 +1,4 @@
-require("dotenv").config();
-
+const dotenv = require("dotenv");
 const express = require("express");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -24,6 +23,9 @@ const authorRoutes = require("./routes/authorRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const borrowingRecordRoutes = require("./routes/borrowingRecordRoutes");
 const penaltiesRoutes = require("./routes/penaltiesRoutes");
+
+// Load the appropriate .env file
+dotenv.config();
 
 // DB Modules
 const db = require("./models");

@@ -6,22 +6,22 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Associations
       User.hasMany(models.BorrowingRecord, {
-        foreignKey: "user_id",
+        foreignKey: "userId",
         as: "borrowingRecords",
       });
 
       User.hasMany(models.Reservation, {
-        foreignKey: "user_id",
+        foreignKey: "userId",
         as: "reservations",
       });
 
       User.belongsTo(models.Role, {
-        foreignKey: "role_id",
+        foreignKey: "roleId",
         as: "role",
       });
 
       User.hasMany(models.Penalty, {
-        foreignKey: "user_id",
+        foreignKey: "userId",
         as: "penalties",
       });
     }

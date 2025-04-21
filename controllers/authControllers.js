@@ -19,6 +19,7 @@ const { addToBlacklist } = require("../middlewares/blackListToken");
 const { successResponse, errorResponse } = require("../utils/handleResponse");
 const Messages = require("../utils/commonMessages");
 
+// Load the appropriate .env file
 dotenv.config();
 
 // Twilio Client
@@ -31,52 +32,54 @@ const loginUser = async (req, res) => {
   try {
     logger.info("authControllers --> loginUser --> reached");
 
-    const { email, password } = req.body;
+    const { emailId, password } = req.body;
 
     // Trim and lowercase email to ensure consistency
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = emailId.trim().toLowerCase();
 
     // Find user with associated role
     const user = await User.findOne({
-      where: { email: normalizedEmail },
-      include: [{ model: Role, as: "roles", attributes: ["id", "name"] }],
+      where: { emailId: normalizedEmail },
+      include: [{ model: Role, as: "role", attributes: ["id", "name"] }],
     });
 
     if (!user) {
-      logger.warn("Login failed - user not found:", email);
+      logger.warn("Login failed - user not found:");
       return errorResponse(res, Messages.AUTH.INVALID_USER, null, 404);
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      logger.warn("Login failed - invalid password for:", email);
+      logger.warn("Login failed - invalid password for:");
       return errorResponse(res, Messages.AUTH.INVALID_PASSWORD, null, 401);
     }
 
-    const roleInfo = user?.roles?.dataValues;
+    // Extract role info
+    const role = user?.role || {};
+    const { id: roleId, name: roleName } = role;
 
     // Generate tokens
     const accessToken = generateAccessToken({
       id: user.id,
-      email: user.email,
-      role: roleInfo?.name,
+      emailId: user.emailId,
+      role: roleName,
     });
 
     const refreshToken = generateRefreshToken({
       id: user.id,
-      email: user.email,
+      emailId: user.emailId,
     });
 
     // Prepare response data
     const responseData = {
       user: {
         id: user.id,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        roleId: roleInfo?.id,
-        roleName: roleInfo?.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailId: user.emailId,
+        roleId,
+        roleName,
       },
       tokens: {
         accessToken,
@@ -84,13 +87,13 @@ const loginUser = async (req, res) => {
       },
     };
 
-    logger.info("Login successful for:", email);
+    logger.info("Login successful for:", emailId);
     return successResponse(res, Messages.AUTH.LOGIN_SUCCESS, responseData, 200);
   } catch (error) {
     logger.error("authControllers --> loginUser --> error", error);
     return errorResponse(
       res,
-      Messages.SERVER.INTERNAL_SERVER_ERROR,
+      Messages.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

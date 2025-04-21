@@ -5,11 +5,11 @@ module.exports = (sequelize) => {
   class Reservation extends Model {
     static associate(models) {
       Reservation.belongsTo(models.User, {
-        foreignKey: "user_id",
+        foreignKey: "userId",
         as: "user",
       });
       Reservation.belongsTo(models.Book, {
-        foreignKey: "book_id",
+        foreignKey: "bookId",
         as: "book",
       });
     }

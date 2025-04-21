@@ -6,30 +6,30 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Book belongs to many Authors through BookAuthor
       Book.belongsTo(models.Author, {
-        foreignKey: "author_id",
+        foreignKey: "authorId",
         as: "author",
       });
 
       // Book belongs to a Category
       Book.belongsTo(models.Category, {
-        foreignKey: "category_id",
+        foreignKey: "categoryId",
         as: "category",
       });
 
       // Book has many BorrowingRecords
       Book.hasMany(models.BorrowingRecord, {
-        foreignKey: "book_id",
+        foreignKey: "bookId",
         as: "borrowingRecords",
       });
 
       // Book has many Reservations
       Book.hasMany(models.Reservation, {
-        foreignKey: "book_id",
+        foreignKey: "bookId",
         as: "reservations",
       });
 
       Book.hasMany(models.Penalty, {
-        foreignKey: "book_id",
+        foreignKey: "bookId",
         as: "penalties",
       });
     }

@@ -14,19 +14,34 @@ const validate = (validations) => {
   return [
     ...validations,
     (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return errorResponse(
-          res,
-          Messages.VALIDATION.VALIDATION_ERROR,
-          errors.array(),
-          400
-        );
+      const result = validationResult(req);
+
+      if (!result.isEmpty()) {
+        const errors = result.array();
+
+        // Look for any custom error with a status
+        const customError = errors.find(err => err.msg instanceof Error);
+
+        let status = 400;
+        let message = Messages.VALIDATION.VALIDATION_ERROR;
+
+        if (customError) {
+          const err = customError.msg;
+          status = err.status || 400;
+          message = err.message || Messages.VALIDATION.VALIDATION_ERROR;
+
+          // Overwrite original message for formatting consistency
+          customError.msg = message;
+        }
+
+        return errorResponse(res, message, errors, status);
       }
+
       next();
     },
   ];
 };
+
 
 /**
  * Auth validation rules
@@ -45,6 +60,15 @@ const authValidation = validate([
     .isLength({ min: 8 })
     .withMessage(Messages.VALIDATION.PASSWORD_MIN_LENGTH),
 ]);
+
+const isUniqueEmail = async (emailId) => {
+  const user = await User.findOne({ where: { emailId } });
+  if (user) {
+    const error = new Error(Messages.AUTH.USER_EXISTS);
+    error.status = 409;
+    throw error;
+  }
+};
 
 /**
  * New user registration validation
@@ -68,12 +92,7 @@ const newUserValidation = validate([
     .withMessage(Messages.VALIDATION.EMAIL_REQUIRED)
     .isEmail()
     .withMessage(Messages.VALIDATION.INVALID_EMAIL)
-    .custom(async (email) => {
-      const user = await User.findOne({ where: { email } });
-      if (user) {
-        throw new Error(Messages.AUTH.USER_EXISTS);
-      }
-    }),
+    .custom(isUniqueEmail),
   body("password")
     .trim()
     .notEmpty()

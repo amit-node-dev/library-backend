@@ -9,15 +9,16 @@ const { errorResponse } = require("../utils/handleResponse");
 const logger = require("../core-configurations/logger-config/logger");
 
 // THIS FUNCTIONALITY WILL CHECK ROLE AND PROVIDE ACCESS TO THE ROUTES.
-const checkRole = (roles) => {
+const checkRole = (allowedRoles) => {
   return async (req, res, next) => {
     try {
       const id = req.user.id
+      console.log("AAA ", id)
 
       const user = await User.findByPk(id, {
         include: {
           model: Role,
-          as: "roles",
+          as: "role",
           attributes: ["name"],
         },
       });
@@ -27,11 +28,9 @@ const checkRole = (roles) => {
       }
 
       // Check if user has any of the allowed roles
-      const hasPermission = user.roles.some(role => 
-        roles.includes(role.name)
-      );
+      const userRoleName = user.role?.name;
 
-      if (!hasPermission) {
+      if (!userRoleName || !allowedRoles.includes(userRoleName)) {
         return errorResponse(res, message.AUTH.ACCESS_DENIED, null, 403);
       }
 

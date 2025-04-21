@@ -5,11 +5,11 @@ module.exports = (sequelize) => {
   class BorrowingRecord extends Model {
     static associate(models) {
       BorrowingRecord.belongsTo(models.User, {
-        foreignKey: "user_id",
+        foreignKey: "userId",
         as: "user",
       });
       BorrowingRecord.belongsTo(models.Book, {
-        foreignKey: "book_id",
+        foreignKey: "bookId",
         as: "book",
       });
     }

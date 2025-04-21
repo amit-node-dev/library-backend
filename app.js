@@ -5,6 +5,9 @@ const morgan = require("morgan");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 
+// Load the appropriate .env file
+dotenv.config();
+
 // Core configurations
 const logger = require("./core-configurations/logger-config/logger");
 const sequelize = require("./core-configurations/sequelize-config/sequelize");
@@ -23,9 +26,6 @@ const authorRoutes = require("./routes/authorRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const borrowingRecordRoutes = require("./routes/borrowingRecordRoutes");
 const penaltiesRoutes = require("./routes/penaltiesRoutes");
-
-// Load the appropriate .env file
-dotenv.config();
 
 // DB Modules
 const db = require("./models");
@@ -99,4 +99,5 @@ db.sequelize
   })
   .catch((err) => {
     logger.error("Database connection failed:", err);
+    process.exit(1);
   });

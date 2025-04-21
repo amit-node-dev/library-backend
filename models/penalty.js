@@ -7,13 +7,13 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Penalty belongs to a User
       Penalty.belongsTo(models.User, {
-        foreignKey: "user_id",
+        foreignKey: "userId",
         as: "user",
       });
 
       // Penalty belongs to a Book
       Penalty.belongsTo(models.Book, {
-        foreignKey: "book_id",
+        foreignKey: "bookId",
         as: "book",
       });
     }

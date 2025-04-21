@@ -2,7 +2,7 @@ const express = require("express");
 
 // CONTROLLERS
 const {
-  createOrUpdateUser,
+  registerUser,
   getAllUserList,
   getUserById,
   updateUser,
@@ -25,7 +25,7 @@ router.post(
   "/add_users",
   checkRole(["super_admin"]),
   newUserValidation,
-  createOrUpdateUser
+  registerUser
 );
 
 router.get("/", checkRole(permission), getAllUserList);

@@ -96,7 +96,7 @@ const registerUser = async (req, res) => {
     logger.error("userControllers --> registerUser --> error", error);
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Messages.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -123,12 +123,6 @@ const getAllUserList = async (req, res) => {
       return errorResponse(res, Messages.AUTH.INVALID_USER, null, 404);
     }
 
-    // Check permissions
-    const allowedRoles = ["super_admin", "admin"];
-    if (!allowedRoles.includes(currentUser.role?.name)) {
-      return errorResponse(res, Messages.AUTH.ACCESS_DENIED, null, 403);
-    }
-
     // Parse query parameters
     const {
       page = 1,
@@ -139,12 +133,9 @@ const getAllUserList = async (req, res) => {
       sortOrder = "DESC",
     } = req.query;
 
-    const offset =
-      (Math.max(1, parseInt(page)) - 1) * Math.max(1, parseInt(pageSize));
+    const pageNumber = Math.max(1, parseInt(page));
     const limit = Math.max(1, parseInt(pageSize));
-
-    // Building the where condition
-    const whereCondition = {};
+    const offset = (pageNumber - 1) * limit;
 
     // Build filters
     const filters = {};
@@ -162,20 +153,12 @@ const getAllUserList = async (req, res) => {
     // Fetch paginated results
     const { count, rows: users } = await User.findAndCountAll({
       where: filters,
+      include: [{ model: Role, as: "role", attributes: ["id", "name"] }],
       offset,
       limit,
       order: [[sortBy, sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC"]],
-      include: [{ model: Role, as: "role", attributes: ["name"] }],
       attributes: { exclude: ["password"] },
     });
-
-    const responseData = {
-      items: rows,
-      total: count,
-      page: parseInt(page, 10),
-      itemsPerPage: limit,
-      totalPages: Math.ceil(count / limit),
-    };
 
     logger.info("userControllers --> getAllUserList --> ended");
     return successResponse(
@@ -197,7 +180,7 @@ const getAllUserList = async (req, res) => {
     if (error.name === "JsonWebTokenError") {
       return errorResponse(res, Messages.AUTH.INVALID_TOKEN, null, 401);
     }
-    return errorResponse(res, Messages.SERVER.INTERNAL_SERVER_ERROR, null, 500);
+    return errorResponse(res, Messages.SERVER.INTERNAL_ERROR, null, 500);
   }
 };
 
@@ -375,7 +358,7 @@ const getCurrentUserPoints = async (req, res) => {
     logger.error("userControllers --> getCurrentUserPoints --> error", error);
     return errorResponse(
       res,
-      Messages.SERVER.INTERNAL_SERVER_ERROR,
+      Messages.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

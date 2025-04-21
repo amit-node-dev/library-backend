@@ -13,9 +13,46 @@ module.exports = {
       },
       bookName: {
         type: Sequelize.STRING(100),
+        allowNull: false
       },
       title: {
-        type: Sequelize.TEXT,
+        type: Sequelize.TEXT('medium'),
+        allowNull: false
+      },
+      description: {
+        type: Sequelize.TEXT('long'),
+        allowNull: false
+      },
+      conclusion: {
+        type: Sequelize.TEXT("medium"),
+        allowNull: false
+      },
+      isbn: {
+        type: Sequelize.STRING(20),
+        unique: true,
+        allowNull: false
+      },
+      publisher: {
+        type: Sequelize.STRING(50),
+        allowNull: true
+      },
+      publicationYear: {
+        type: Sequelize.STRING(50),
+        allowNull: true
+      },
+      totalCopies: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      availableCopies: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      location: {
+        type: Sequelize.STRING(50),
+        allowNull: true,
       },
       authorId: {
         type: Sequelize.INTEGER,
@@ -32,33 +69,6 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
-      },
-      description: {
-        type: Sequelize.TEXT,
-      },
-      conclusion: {
-        type: Sequelize.TEXT,
-      },
-      isbn: {
-        type: Sequelize.STRING(20),
-        unique: true,
-      },
-      publisher: {
-        type: Sequelize.STRING(50),
-      },
-      publicationYear: {
-        type: Sequelize.STRING(50),
-      },
-      totalCopies: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-      },
-      availableCopies: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-      },
-      location: {
-        type: Sequelize.STRING(50),
       },
       pointsRequired: {
         type: Sequelize.INTEGER,

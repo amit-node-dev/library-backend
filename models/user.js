@@ -54,7 +54,7 @@ module.exports = (sequelize) => {
         allowNull: true,
         validate: {
           len: {
-            args: [8, 100],
+            args: [8, 20],
             msg: "Password must be at least 8 characters long",
           },
         },
@@ -66,7 +66,7 @@ module.exports = (sequelize) => {
           key: "id",
         },
         allowNull: true,
-        defaultValue: 3,
+        defaultValue: 4,
       },
       country: {
         type: DataTypes.STRING,

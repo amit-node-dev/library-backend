@@ -43,9 +43,6 @@ module.exports = (sequelize) => {
         allowNull: false,
         validate: {
           isDate: true,
-          notNull: {
-            msg: "Reservation date is required",
-          },
         },
       },
       status: {

@@ -43,7 +43,7 @@ const verifyToken = (req, res, next) => {
     // Attach user to request
     req.user = {
       id: decoded.id,
-      email: decoded.email,
+      emailId: decoded.emailId,
       ...(decoded.role && { role: decoded.role }) 
     };
 

@@ -56,7 +56,7 @@ module.exports = (sequelize) => {
       isbn: {
         type: DataTypes.STRING(20),
         unique: true,
-        allowNull: true,
+        allowNull: false,
       },
       publisher: {
         type: DataTypes.STRING(50),

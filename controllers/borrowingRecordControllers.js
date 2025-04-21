@@ -15,7 +15,7 @@ const logger = require("../core-configurations/logger-config/logger");
 
 // UTILS
 const { successResponse, errorResponse } = require("../utils/handleResponse");
-const message = require("../utils/commonMessages");
+const Message = require("../utils/commonMessages");
 
 // GET BORROW BOOK RECORD STATUS
 const getBorrowBookRecordStatus = async (req, res) => {
@@ -34,13 +34,13 @@ const getBorrowBookRecordStatus = async (req, res) => {
     }
 
     // Check if book is out of stock
-    if (book.available_copies <= 0) {
+    if (book.availableCopies <= 0) {
       return successResponse(res, "Out of Stock", null, 200);
     }
 
     // Fetch the most recent borrowing record for the given user & book
     const borrowRecord = await BorrowingRecord.findOne({
-      where: { user_id: userId, book_id: bookId },
+      where: { userId, bookId },
       order: [["id", "DESC"]],
     });
 
@@ -52,9 +52,9 @@ const getBorrowBookRecordStatus = async (req, res) => {
     // Extract relevant details
     const responseData = {
       recordId: borrowRecord.id,
-      borrowDate: borrowRecord.borrow_date,
-      dueDate: borrowRecord.due_date,
-      returnDate: borrowRecord.return_date || null,
+      borrowDate: borrowRecord.borrowDate,
+      dueDate: borrowRecord.dueDate,
+      returnDate: borrowRecord.returnDate || null,
       status: borrowRecord.status,
     };
 
@@ -63,7 +63,7 @@ const getBorrowBookRecordStatus = async (req, res) => {
     );
     return successResponse(
       res,
-      message.COMMON.FETCH_SUCCESS,
+      Message.COMMON.FETCH_SUCCESS,
       responseData,
       200
     );
@@ -74,7 +74,7 @@ const getBorrowBookRecordStatus = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -93,11 +93,12 @@ const addBorrowingRecord = async (req, res) => {
       req.headers.authorization && req.headers.authorization.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { email } = decoded;
+    const { emailId } = decoded;
+    console.log("AAA ", emailId)
 
     // Validate if User exists and is active
     const user = await User.findOne({
-      where: { email: email },
+      where: { emailId },
       include: [{ model: Role, as: "role" }],
       transaction,
     });
@@ -126,7 +127,7 @@ const addBorrowingRecord = async (req, res) => {
       await transaction.rollback();
       return errorResponse(
         res,
-        message.COMMON.NOT_FOUND,
+        Message.COMMON.NOT_FOUND,
         "Book not found",
         404
       );
@@ -184,7 +185,7 @@ const addBorrowingRecord = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -317,7 +318,7 @@ const returnBorrowingRecord = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -362,7 +363,7 @@ const getAllBorrowingRecords = async (req, res) => {
     );
     return successResponse(
       res,
-      message.COMMON.LIST_FETCH_SUCCESS,
+      Message.COMMON.LIST_FETCH_SUCCESS,
       responseData,
       200
     );
@@ -373,7 +374,7 @@ const getAllBorrowingRecords = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -405,7 +406,7 @@ const getBorrowingRecordById = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -451,7 +452,7 @@ const updateBorrowingRecord = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -481,7 +482,7 @@ const deleteBorrowingRecord = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> deleteBorrowingRecord --> ended"
     );
-    return successResponse(res, message.COMMON.DELETE_SUCCESS, record, 200);
+    return successResponse(res, Message.COMMON.DELETE_SUCCESS, record, 200);
   } catch (error) {
     logger.error(
       "borrowingRecordControllers --> deleteBorrowingRecord --> error",
@@ -489,7 +490,7 @@ const deleteBorrowingRecord = async (req, res) => {
     );
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      Message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

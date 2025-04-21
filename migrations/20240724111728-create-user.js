@@ -33,10 +33,12 @@ module.exports = {
       },
       password: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notEmpty: true,
-          len: [8, 100],
+          len: {
+            args: [8, 20],
+            msg: "Password must be at least 8 characters long",
+          },
         },
       },
       roleId: {
@@ -46,7 +48,7 @@ module.exports = {
           key: "id",
         },
         allowNull: true,
-        defaultValue: 3,
+        defaultValue: 4,
       },
       country: {
         type: Sequelize.STRING(25),

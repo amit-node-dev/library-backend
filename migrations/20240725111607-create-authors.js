@@ -13,16 +13,19 @@ module.exports = {
       },
       firstName: {
         type: Sequelize.STRING(25),
+        allowNull: false
       },
       lastName: {
         type: Sequelize.STRING(25),
+        allowNull: false
       },
       emailId: {
         type: Sequelize.STRING(30),
+        allowNull: false
       },
       biography: {
         allowNull: true,
-        type: Sequelize.TEXT,
+        type: Sequelize.TEXT('medium'),
       },
       createdAt: {
         allowNull: false,

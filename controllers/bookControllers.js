@@ -110,18 +110,18 @@ const getAllBooksList = async (req, res) => {
     if (search) {
       whereCondition[Op.or] = [
         { isbn: { [Op.like]: `%${search}%` } },
-        { bookname: { [Op.like]: `%${search}%` } },
+        { bookName: { [Op.like]: `%${search}%` } },
         { publisher: { [Op.like]: `%${search}%` } },
         { location: { [Op.like]: `%${search}%` } },
       ];
     }
 
     if (category) {
-      whereCondition.category_id = category;
+      whereCondition.categoryId = category;
     }
 
     if (author) {
-      whereCondition.author_id = author;
+      whereCondition.authorId = author;
     }
 
     const { count, rows } = await Book.findAndCountAll({
@@ -133,7 +133,7 @@ const getAllBooksList = async (req, res) => {
         {
           model: Author,
           as: "author",
-          attributes: ["firstname", "lastname"],
+          attributes: ["firstName", "lastName"],
         },
         {
           model: Category,
@@ -144,7 +144,7 @@ const getAllBooksList = async (req, res) => {
     });
 
     const responseData = {
-      books: rows,
+      items: rows,
       total: count,
       page: parseInt(page, 10),
       pageSize: limit,

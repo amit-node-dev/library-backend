@@ -1,4 +1,5 @@
 "use strict";
+
 const { Model, DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
@@ -23,6 +24,7 @@ module.exports = (sequelize) => {
       },
       description: {
         type: DataTypes.TEXT,
+        allowNull: true,
       },
     },
     {

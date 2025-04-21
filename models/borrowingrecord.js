@@ -43,9 +43,6 @@ module.exports = (sequelize) => {
         allowNull: false,
         validate: {
           isDate: true,
-          notNull: {
-            msg: "Borrow date is required",
-          },
         },
       },
       dueDate: {
@@ -53,9 +50,6 @@ module.exports = (sequelize) => {
         allowNull: false,
         validate: {
           isDate: true,
-          notNull: {
-            msg: "Due date is required",
-          },
         },
       },
       returnDate: {

@@ -13,7 +13,6 @@ const checkRole = (allowedRoles) => {
   return async (req, res, next) => {
     try {
       const id = req.user.id
-      console.log("AAA ", id)
 
       const user = await User.findByPk(id, {
         include: {

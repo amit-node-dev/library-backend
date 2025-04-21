@@ -12,12 +12,15 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       userId: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       bookId: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       fineAmount: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       createdAt: {

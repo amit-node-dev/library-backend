@@ -65,7 +65,7 @@ const getAllAuthorsList = async (req, res) => {
       });
 
       responseData = {
-        authors: result.rows,
+        items: result.rows,
         total: result.count,
         page: parseInt(page, 10),
         pageSize: limit,
@@ -73,7 +73,7 @@ const getAllAuthorsList = async (req, res) => {
     } else {
       let result = await Author.findAll({});
       responseData = {
-        authors: result,
+        items: result,
       };
     }
 

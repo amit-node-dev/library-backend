@@ -347,7 +347,7 @@ const getAllBorrowingRecords = async (req, res) => {
       offset,
       limit,
       order: [["createdAt", "DESC"]],
-      include: ["users", "books"],
+      include: ["user", "book"],
     });
 
     const responseData = {

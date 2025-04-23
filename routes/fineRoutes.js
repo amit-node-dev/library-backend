@@ -15,7 +15,7 @@ const {
 } = require("../controllers/fineControllers");
 
 // PERMISSIONS
-const permission = ["super_admin", "admin", "customer"];
+const permission = ["super_admin", "admin", "librarian", "customer", "guest"];
 
 router.post("/", checkRole(["super_admin"]), validateFine, createFine);
 router.get("/", checkRole(permission), getAllFines);

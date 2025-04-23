@@ -17,7 +17,7 @@ const {
 
 const router = express.Router();
 
-const permission = ["super_admin", "admin", "customer"];
+const permission = ["super_admin", "admin", "librarian", "customer", "guest"];
 
 // Private routes (require authentication)
 router.post("/add_roles", roleValidation, checkRole(["super_admin"]), addRole);

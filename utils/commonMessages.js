@@ -4,6 +4,7 @@
  */
 const Messages = {
   COMMON: {
+    WELCOME: "Welcome to LibraTech!",
     REGISTER_SUCCESS: "Registration completed successfully",
     ADD_SUCCESS: "Resource added successfully",
     UPDATE_SUCCESS: "Resource updated successfully",
@@ -25,7 +26,7 @@ const Messages = {
     TOKEN_EXPIRED: "Session token has expired",
     UNAUTHORIZED: "Authorization required",
     ACCESS_DENIED: "Insufficient permissions",
-    LOGOUT_SUCCESS: "Session terminated successfully",
+    LOGOUT_SUCCESS: "Thank You! For visiting us.",
     INAVLID_OTP: "Invalid OTP Verification",
     OTP_SENT: "Verification code dispatched",
     OTP_VERIFIED: "Verification successful",

@@ -14,7 +14,7 @@ const checkRole = require("../middlewares/checkRole");
 
 const router = express.Router();
 
-const permission = ["super_admin", "admin", "customer"];
+const permission = ["super_admin", "admin", "librarian", "customer", "guest"];
 
 // Private routes (require authentication)
 router.post("/add-author", checkRole(["super_admin"]), addNewAuthors);

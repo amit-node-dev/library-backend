@@ -19,7 +19,7 @@ const checkRole = require("../middlewares/checkRole");
 
 const router = express.Router();
 
-const permission = ["super_admin", "admin", "customer"];
+const permission = ["super_admin", "admin", "librarian", "customer", "guest"];
 
 router.post(
   "/add_users",

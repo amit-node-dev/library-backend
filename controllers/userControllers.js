@@ -160,19 +160,18 @@ const getAllUserList = async (req, res) => {
       attributes: { exclude: ["password"] },
     });
 
+    const responseData = {
+      items: users,
+      total: count,
+      page: parseInt(page, 10),
+      pageSize: limit,
+    };
+
     logger.info("userControllers --> getAllUserList --> ended");
     return successResponse(
       res,
       Messages.COMMON.LIST_FETCH_SUCCESS,
-      {
-        items: users,
-        pagination: {
-          total: count,
-          page: parseInt(page),
-          pageSize: limit,
-          totalPages: Math.ceil(count / limit),
-        },
-      },
+      responseData,
       200
     );
   } catch (error) {

@@ -88,7 +88,7 @@ const loginUser = async (req, res) => {
     };
 
     logger.info("Login successful for:", emailId);
-    return successResponse(res, Messages.AUTH.LOGIN_SUCCESS, responseData, 200);
+    return successResponse(res, Messages.COMMON.WELCOME, responseData, 200);
   } catch (error) {
     logger.error("authControllers --> loginUser --> error", error);
     return errorResponse(
@@ -107,19 +107,19 @@ const logoutUser = async (req, res) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      return errorResponse(res, Messages.AUTH.UNAUTHORIZED_TOKEN, null, 401);
+      return errorResponse(res, Messages.AUTH.UNAUTHORIZED, null, 401);
     }
 
     const token = authHeader.split(" ")[1];
     await addToBlacklist(token);
 
     logger.info("User logged out successfully");
-    return successResponse(res, Messages.AUTH.LOGOUT, null, 200);
+    return successResponse(res, Messages.AUTH.LOGOUT_SUCCESS, null, 200);
   } catch (error) {
     logger.error("authControllers --> logoutUser --> error", error);
     return errorResponse(
       res,
-      Messages.SERVER.INTERNAL_SERVER_ERROR,
+      Messages.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

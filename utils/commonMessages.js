@@ -17,7 +17,7 @@ const Messages = {
   },
 
   AUTH: {
-    INVALID_CREDENTIALS: "Invalid authentication credentials",
+    INVALID_CREDENTIALS: "Invalid Credentials",
     USER_NOT_FOUND: "User account not found",
     PASSWORD_MISMATCH: "Invalid password provided",
     OLD_PASSWORD_MISMATCH: "Current password is incorrect",

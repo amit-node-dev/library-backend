@@ -94,7 +94,6 @@ const addBorrowingRecord = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { emailId } = decoded;
-    console.log("AAA ", emailId)
 
     // Validate if User exists and is active
     const user = await User.findOne({
@@ -108,14 +107,20 @@ const addBorrowingRecord = async (req, res) => {
     }
 
     // Check role-based access
-    const allowedRoles = ["super_admin", "admin", "customer"];
+    const allowedRoles = [
+      "super_admin",
+      "admin",
+      "librarian",
+      "customer",
+      "guest",
+    ];
     if (!allowedRoles.includes(user.role?.name)) {
       await transaction.rollback();
       return errorResponse(
         res,
         "You are not authorized to access this resource.",
         null,
-        403
+        401
       );
     }
 
@@ -128,45 +133,45 @@ const addBorrowingRecord = async (req, res) => {
       return errorResponse(
         res,
         Message.COMMON.NOT_FOUND,
-        "Book not found",
+        null,
         404
       );
     }
 
-    if (book.available_copies <= 0) {
+    if (book.availableCopies <= 0) {
       await transaction.rollback();
-      return errorResponse(res, "No copies available for borrowing", null, 400);
+      return successResponse(res, "No copies available for borrowing", null, 200);
     }
 
     // Check if user has enough points
-    if (user.points < book.points_required) {
+    if (user.points < book.pointsRequired) {
       await transaction.rollback();
-      return errorResponse(
+      return successResponse(
         res,
         "Not enough points to borrow this book",
         null,
-        400
+        200
       );
     }
 
     // Deduct points from user
-    user.points -= book.points_required;
+    user.points -= book.pointsRequired;
     await user.save({ transaction });
 
     // Create borrowing record
     const borrowRecord = await BorrowingRecord.create(
       {
-        user_id: userId,
-        book_id: bookId,
-        borrow_date: borrowDate,
-        due_date: dueDate,
+        userId,
+        bookId,
+        borrowDate,
+        dueDate,
         status,
       },
       { transaction }
     );
 
     // Update book availability
-    book.available_copies -= 1;
+    book.availableCopies -= 1;
     await book.save({ transaction });
 
     await transaction.commit();

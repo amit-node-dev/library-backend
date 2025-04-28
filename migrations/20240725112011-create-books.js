@@ -13,32 +13,32 @@ module.exports = {
       },
       bookName: {
         type: Sequelize.STRING(100),
-        allowNull: false
+        allowNull: false,
       },
       title: {
-        type: Sequelize.TEXT('medium'),
-        allowNull: false
+        type: Sequelize.TEXT("medium"),
+        allowNull: false,
       },
       description: {
-        type: Sequelize.TEXT('long'),
-        allowNull: false
+        type: Sequelize.TEXT("long"),
+        allowNull: false,
       },
       conclusion: {
         type: Sequelize.TEXT("medium"),
-        allowNull: false
+        allowNull: false,
       },
       isbn: {
         type: Sequelize.STRING(20),
         unique: true,
-        allowNull: false
+        allowNull: false,
       },
       publisher: {
         type: Sequelize.STRING(50),
-        allowNull: true
+        allowNull: true,
       },
       publicationYear: {
         type: Sequelize.STRING(50),
-        allowNull: true
+        allowNull: true,
       },
       totalCopies: {
         type: Sequelize.INTEGER,

@@ -130,17 +130,17 @@ const addBorrowingRecord = async (req, res) => {
     const book = await Book.findByPk(bookId, { transaction });
     if (!book) {
       await transaction.rollback();
-      return errorResponse(
-        res,
-        Message.COMMON.NOT_FOUND,
-        null,
-        404
-      );
+      return errorResponse(res, Message.COMMON.NOT_FOUND, null, 404);
     }
 
     if (book.availableCopies <= 0) {
       await transaction.rollback();
-      return successResponse(res, "No copies available for borrowing", null, 200);
+      return successResponse(
+        res,
+        "No copies available for borrowing",
+        null,
+        200
+      );
     }
 
     // Check if user has enough points
@@ -209,11 +209,11 @@ const returnBorrowingRecord = async (req, res) => {
       req.headers.authorization && req.headers.authorization.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { email } = decoded;
+    const { emailId } = decoded;
 
     // Validate if User exists and is active
     const user = await User.findOne({
-      where: { email: email },
+      where: { emailId },
       include: [{ model: Role, as: "role" }],
       transaction,
     });
@@ -223,7 +223,13 @@ const returnBorrowingRecord = async (req, res) => {
     }
 
     // Check role-based access
-    const allowedRoles = ["super_admin", "admin", "customer"];
+    const allowedRoles = [
+      "super_admin",
+      "admin",
+      "librarian",
+      "customer",
+      "guest",
+    ];
     if (!allowedRoles.includes(user.role?.name)) {
       await transaction.rollback();
       return errorResponse(
@@ -238,13 +244,13 @@ const returnBorrowingRecord = async (req, res) => {
 
     // Fetch the borrowing record
     const record = await BorrowingRecord.findOne({
-      where: { id: recordId, user_id: userId, book_id: bookId },
+      where: { id: recordId, userId, bookId },
       transaction,
     });
 
     if (!record) {
       await transaction.rollback();
-      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
+      return errorResponse(res, Message.COMMON.NOT_FOUND, null, 404);
     }
 
     // Fetch the book details
@@ -278,9 +284,9 @@ const returnBorrowingRecord = async (req, res) => {
       // Create a new penalty entry
       await Penalty.create(
         {
-          user_id: userId,
-          book_id: bookId,
-          fine: fineAmount,
+          userId,
+          bookId,
+          fineAmount,
         },
         { transaction }
       );
@@ -295,13 +301,13 @@ const returnBorrowingRecord = async (req, res) => {
     }
 
     // Update book's available copies only if it's the first time returning
-    if (!record.return_date) {
-      book.available_copies += 1;
+    if (!record.returnDate) {
+      book.availableCopies += 1;
       await book.save({ transaction });
     }
 
     // Update borrowing record details
-    record.return_date = returnDateObj;
+    record.returnDate = returnDateObj;
     record.status = status;
     await record.save({ transaction });
 
@@ -397,13 +403,13 @@ const getBorrowingRecordById = async (req, res) => {
 
     const record = await BorrowingRecord.findByPk(id);
     if (!record) {
-      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
+      return errorResponse(res, Message.COMMON.NOT_FOUND, null, 404);
     }
 
     logger.info(
       "borrowingRecordControllers --> getBorrowingRecordById --> ended"
     );
-    return successResponse(res, message.COMMON.FETCH_SUCCESS, record, 200);
+    return successResponse(res, Message.COMMON.FETCH_SUCCESS, record, 200);
   } catch (error) {
     logger.error(
       "borrowingRecordControllers --> getBorrowingRecordById --> error",
@@ -430,7 +436,7 @@ const updateBorrowingRecord = async (req, res) => {
 
     const record = await BorrowingRecord.findByPk(id);
     if (!record) {
-      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
+      return errorResponse(res, Message.COMMON.NOT_FOUND, null, 404);
     }
 
     const book = await Book.findByPk(record.bookId);
@@ -449,7 +455,7 @@ const updateBorrowingRecord = async (req, res) => {
     logger.info(
       "borrowingRecordControllers --> updateBorrowingRecord --> ended"
     );
-    return successResponse(res, message.COMMON.UPDATE_SUCCESS, record, 200);
+    return successResponse(res, Message.COMMON.UPDATE_SUCCESS, record, 200);
   } catch (error) {
     logger.error(
       "borrowingRecordControllers --> updateBorrowingRecord --> error",
@@ -475,7 +481,7 @@ const deleteBorrowingRecord = async (req, res) => {
 
     const record = await BorrowingRecord.findByPk(id);
     if (!record) {
-      return errorResponse(res, message.COMMON.NOT_FOUND, null, 404);
+      return errorResponse(res, Message.COMMON.NOT_FOUND, null, 404);
     }
 
     const book = await Book.findByPk(record.id);

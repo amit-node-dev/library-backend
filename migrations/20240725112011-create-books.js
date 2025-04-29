@@ -17,7 +17,7 @@ module.exports = {
       },
       title: {
         type: Sequelize.TEXT("medium"),
-        allowNull: false,
+        allowNull: true,
       },
       description: {
         type: Sequelize.TEXT("long"),
@@ -25,12 +25,11 @@ module.exports = {
       },
       conclusion: {
         type: Sequelize.TEXT("medium"),
-        allowNull: false,
+        allowNull: true,
       },
       isbn: {
         type: Sequelize.STRING(20),
-        unique: true,
-        allowNull: false,
+        allowNull: true,
       },
       publisher: {
         type: Sequelize.STRING(50),
@@ -49,10 +48,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
-      },
-      location: {
-        type: Sequelize.STRING(50),
-        allowNull: true,
       },
       authorId: {
         type: Sequelize.INTEGER,

@@ -27,22 +27,17 @@ module.exports = {
           isEmail: true,
         },
       },
-      age: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
       password: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      roleId: {
+      age: {
         type: Sequelize.INTEGER,
-        references: {
-          model: "Roles",
-          key: "id",
-        },
         allowNull: true,
-        defaultValue: 4,
+      },
+      mobileNumber: {
+        type: Sequelize.STRING(15),
+        allowNull: true,
       },
       country: {
         type: Sequelize.STRING(25),
@@ -56,13 +51,18 @@ module.exports = {
         type: Sequelize.STRING(25),
         allowNull: true,
       },
-      mobileNumber: {
-        type: Sequelize.STRING(15),
-        allowNull: true,
-      },
       points: {
         type: Sequelize.INTEGER,
         allowNull: true,
+      },
+      roleId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Roles",
+          key: "id",
+        },
+        allowNull: true,
+        defaultValue: 4,
       },
       createdAt: {
         allowNull: false,

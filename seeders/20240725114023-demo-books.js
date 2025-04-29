@@ -34,9 +34,11 @@ module.exports = {
       "Yuval Noah Harari": authors.find(
         (a) => a.emailId === "james.wilson@example.com"
       )?.id,
-      "Eric Carle": authors.find((a) => a.emailId === "olivia.m@example.com")?.id,
-      "Robert C. Martin": authors.find((a) => a.emailId === "liam.j@example.com")
+      "Eric Carle": authors.find((a) => a.emailId === "olivia.m@example.com")
         ?.id,
+      "Robert C. Martin": authors.find(
+        (a) => a.emailId === "liam.j@example.com"
+      )?.id,
     };
 
     // Fallback to random author if specific mapping not found
@@ -77,7 +79,6 @@ module.exports = {
           publicationYear: "1997-04-01",
           totalCopies: 8,
           availableCopies: 8,
-          location: "Business Section, Shelf 2",
           pointsRequired: 80,
           categoryId: getCategoryId("Self-Help"),
           authorId: getAuthorId("Robert Kiyosaki"),
@@ -97,7 +98,6 @@ module.exports = {
           publicationYear: "2011-09-13",
           totalCopies: 6,
           availableCopies: 6,
-          location: "Business Section, Shelf 1",
           pointsRequired: 100,
           categoryId: getCategoryId("Business"),
           authorId: getAuthorId("Eric Ries"),
@@ -116,7 +116,6 @@ module.exports = {
           publicationYear: "2021-05-04",
           totalCopies: 7,
           availableCopies: 7,
-          location: "Sci-Fi Section, Shelf 3",
           pointsRequired: 150,
           categoryId: categories.find((c) => c.name === "Science Fiction").id,
           authorId: getAuthorId("Andy Weir"),
@@ -135,7 +134,6 @@ module.exports = {
           publicationYear: "2019-02-05",
           totalCopies: 5,
           availableCopies: 5,
-          location: "Mystery Section, Shelf 2",
           pointsRequired: 40,
           categoryId: getCategoryId("Thriller"),
           authorId: getAuthorId("Alex Michaelides"),
@@ -153,7 +151,6 @@ module.exports = {
           publicationYear: "1949-06-08",
           totalCopies: 10,
           availableCopies: 10,
-          location: "Classics Section, Shelf 1",
           pointsRequired: 50,
           categoryId: getCategoryId("Fiction"),
           authorId: getAuthorId("George Orwell"),
@@ -172,7 +169,6 @@ module.exports = {
           publicationYear: "2015-02-10",
           totalCopies: 6,
           availableCopies: 6,
-          location: "History Section, Shelf 4",
           pointsRequired: 80,
           categoryId: getCategoryId("Science & Technology"),
           authorId: getAuthorId("Yuval Noah Harari"),
@@ -190,7 +186,6 @@ module.exports = {
           publicationYear: "1969-06-03",
           totalCopies: 12,
           availableCopies: 12,
-          location: "Children's Section, Shelf 1",
           pointsRequired: 180,
           categoryId: getCategoryId("Children's"),
           authorId: getAuthorId("Eric Carle"),
@@ -209,7 +204,6 @@ module.exports = {
           publicationYear: "2008-08-01",
           totalCopies: 5,
           availableCopies: 5,
-          location: "Technology Section, Shelf 3",
           pointsRequired: 120,
           categoryId: getCategoryId("Science & Technology"),
           authorId: getAuthorId("Robert C. Martin"),

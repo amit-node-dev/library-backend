@@ -217,6 +217,7 @@ const updateUser = async (req, res) => {
     const {
       firstName,
       lastName,
+      emailId,
       age,
       mobileNumber,
       oldPassword,
@@ -240,7 +241,7 @@ const updateUser = async (req, res) => {
         await transaction.rollback();
         return errorResponse(
           res,
-          Messages.AUTH.INVALID_OLD_PASSWORD,
+          Messages.AUTH.OLD_PASSWORD_MISMATCH,
           null,
           400
         );
@@ -248,24 +249,18 @@ const updateUser = async (req, res) => {
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
-    // Format mobile number
-    const formattedMobile =
-      mobileNumber && !mobileNumber.startsWith("+")
-        ? `+91${mobileNumber}`
-        : mobileNumber;
-
     // Update user details
     await user.update(
       {
         firstName,
         lastName,
-        email,
+        emailId,
         age: parseInt(age, 10),
-        mobileNumber: formattedMobile,
+        mobileNumber,
         country,
         state,
         city,
-        roleId,
+        roleId: roleId ? roleId : user.roleId,
       },
       { transaction }
     );

@@ -13,19 +13,15 @@ module.exports = {
       },
       firstName: {
         type: Sequelize.STRING(25),
-        allowNull: false
+        allowNull: false,
       },
       lastName: {
         type: Sequelize.STRING(25),
-        allowNull: false
-      },
-      emailId: {
-        type: Sequelize.STRING(30),
-        allowNull: false
+        allowNull: false,
       },
       biography: {
         allowNull: true,
-        type: Sequelize.TEXT('medium'),
+        type: Sequelize.TEXT("long"),
       },
       createdAt: {
         allowNull: false,

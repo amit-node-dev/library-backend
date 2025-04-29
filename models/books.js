@@ -43,7 +43,7 @@ module.exports = (sequelize) => {
       },
       title: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       description: {
         type: DataTypes.TEXT,
@@ -51,12 +51,11 @@ module.exports = (sequelize) => {
       },
       conclusion: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       isbn: {
         type: DataTypes.STRING(20),
-        unique: true,
-        allowNull: false,
+        allowNull: true,
       },
       publisher: {
         type: DataTypes.STRING(50),
@@ -75,10 +74,6 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         defaultValue: 1,
         allowNull: false,
-      },
-      location: {
-        type: DataTypes.STRING(50),
-        allowNull: true,
       },
       authorId: {
         type: DataTypes.INTEGER,

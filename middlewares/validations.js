@@ -20,7 +20,7 @@ const validate = (validations) => {
         const errors = result.array();
 
         // Look for any custom error with a status
-        const customError = errors.find(err => err.msg instanceof Error);
+        const customError = errors.find((err) => err.msg instanceof Error);
 
         let status = 400;
         let message = Messages.VALIDATION.VALIDATION_ERROR;
@@ -41,7 +41,6 @@ const validate = (validations) => {
     },
   ];
 };
-
 
 /**
  * Auth validation rules
@@ -169,9 +168,7 @@ const bookValidation = validate([
   body("description")
     .trim()
     .notEmpty()
-    .withMessage(Messages.VALIDATION.DESCRIPTION_REQUIRED)
-    .isLength({ max: 1000 })
-    .withMessage(Messages.VALIDATION.DESCRIPTION_MAX_LENGTH),
+    .withMessage(Messages.VALIDATION.DESCRIPTION_REQUIRED),
   body("authorId")
     .trim()
     .notEmpty()

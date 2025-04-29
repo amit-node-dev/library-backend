@@ -17,7 +17,7 @@ const addNewBooks = async (req, res) => {
     logger.info("bookControllers --> addNewBooks --> reached");
 
     const {
-      bookname,
+      bookName,
       title,
       authorId,
       categoryId,
@@ -47,9 +47,6 @@ const addNewBooks = async (req, res) => {
 
     // Convert numeric fields
     const parsedTotalCopies = totalCopies ? parseInt(totalCopies, 10) : null;
-    const parsedPublicationYear = publicationYear
-      ? parseInt(publicationYear, 10)
-      : null;
     const parsedPointsRequired = pointsRequired
       ? parseInt(pointsRequired, 10)
       : null;
@@ -57,19 +54,19 @@ const addNewBooks = async (req, res) => {
     // Create new book
     const newBookData = await Book.create(
       {
-        bookname,
+        bookName,
         title,
         description,
         conclusion,
         isbn,
         publisher,
-        publication_year: parsedPublicationYear,
-        total_copies: parsedTotalCopies,
-        available_copies: parsedTotalCopies,
+        publicationYear,
+        totalCopies: parsedTotalCopies,
+        availableCopies: parsedTotalCopies,
         location,
-        category_id: categoryId,
-        author_id: authorId,
-        points_required: parsedPointsRequired,
+        categoryId,
+        authorId,
+        pointsRequired: parsedPointsRequired,
       },
       { transaction }
     );
@@ -77,12 +74,12 @@ const addNewBooks = async (req, res) => {
     await transaction.commit();
 
     logger.info("bookControllers --> addNewBooks --> ended");
-    return successResponse(res, message.COMMON.ADDED_SUCCESS, newBookData, 201);
+    return successResponse(res, message.COMMON.ADD_SUCCESS, newBookData, 201);
   } catch (error) {
     logger.error("bookControllers --> addNewBooks --> error", error);
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -202,7 +199,7 @@ const getBooksById = async (req, res) => {
     logger.error("bookControllers --> getBooksById --> error", error);
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );
@@ -223,7 +220,7 @@ const updateBooks = async (req, res) => {
     }
 
     const {
-      bookname,
+      bookName,
       title,
       authorId,
       categoryId,
@@ -266,18 +263,18 @@ const updateBooks = async (req, res) => {
     // Update book details
     await book.update(
       {
-        bookname,
+        bookName,
         title,
         description,
         conclusion,
         isbn,
         publisher,
-        publication_year: publicationYear ? parseInt(publicationYear) : null,
-        total_copies: totalCopies ? parseInt(totalCopies) : null,
+        publicationYear,
+        totalCopies: totalCopies ? parseInt(totalCopies) : null,
         location,
-        category_id: categoryId,
-        author_id: authorId,
-        points_required: pointsRequired ? parseInt(pointsRequired) : null,
+        categoryId,
+        authorId,
+        pointsRequired: pointsRequired ? parseInt(pointsRequired) : null,
       },
       { transaction }
     );
@@ -328,7 +325,7 @@ const deleteBooks = async (req, res) => {
     logger.error("bookControllers --> deleteBooks --> error", error);
     return errorResponse(
       res,
-      message.SERVER.INTERNAL_SERVER_ERROR,
+      message.SERVER.INTERNAL_ERROR,
       error.message,
       500
     );

@@ -5,7 +5,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     // Get all authors and categories
     const authors = await queryInterface.sequelize.query(
-      `SELECT id, firstName, lastName, emailId FROM Authors;`,
+      `SELECT id, firstName, lastName FROM Authors;`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 
@@ -21,23 +21,28 @@ module.exports = {
     // Map of author names to their IDs
     const authorMap = {
       "Robert Kiyosaki": authors.find(
-        (a) => a.emailId === "tommy.helson@gmail.com"
+        (a) => a.firstName === "Tommy" && a.lastName === "Helson"
       )?.id,
-      "Eric Ries": authors.find((a) => a.emailId === "rajveer@gmail.com")?.id,
-      "Andy Weir": authors.find((a) => a.emailId === "emily.carter@example.com")
-        ?.id,
+      "Eric Ries": authors.find(
+        (a) => a.firstName === "Rajveer" && a.lastName === "Sinha"
+      )?.id,
+      "Andy Weir": authors.find(
+        (a) => a.firstName === "Emily" && a.lastName === "Carter"
+      )?.id,
       "Alex Michaelides": authors.find(
-        (a) => a.emailId === "michael.zhang@example.com"
+        (a) => a.firstName === "Michael" && a.lastName === "Zhang"
       )?.id,
-      "George Orwell": authors.find((a) => a.emailId === "sophia.r@example.com")
-        ?.id,
+      "George Orwell": authors.find(
+        (a) => a.firstName === "Sophia" && a.lastName === "Rodriguez"
+      )?.id,
       "Yuval Noah Harari": authors.find(
-        (a) => a.emailId === "james.wilson@example.com"
+        (a) => a.firstName === "James" && a.lastName === "Wilson"
       )?.id,
-      "Eric Carle": authors.find((a) => a.emailId === "olivia.m@example.com")
-        ?.id,
+      "Eric Carle": authors.find(
+        (a) => a.firstName === "Olivia" && a.lastName === "Martinez"
+      )?.id,
       "Robert C. Martin": authors.find(
-        (a) => a.emailId === "liam.j@example.com"
+        (a) => a.firstName === "Liam" && a.lastName === "Johnson"
       )?.id,
     };
 
